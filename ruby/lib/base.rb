@@ -11,6 +11,8 @@ class Tag
     @children = []
   end
 
+  # Todos los with_x son setters.
+
   def with_label(label)
     @label = label
     self
@@ -25,6 +27,8 @@ class Tag
     @children << child
     self
   end
+
+  # Retorna recursivamente el xml generado.
 
   def xml(level=0)
     if children.empty?
@@ -60,6 +64,8 @@ class Tag
                    end
   end
 end
+
+# La clase Array es una modificación de la clase Array general para incluirle el método xml_join.
 
 class Array
   def xml_join(separator)

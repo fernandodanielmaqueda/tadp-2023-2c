@@ -1,4 +1,5 @@
 require 'rspec'
 
 require_relative '../lib/prueba'
-
+require_relative '../lib/document'
+require_relative '../lib/alumno'
