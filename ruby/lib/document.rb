@@ -11,22 +11,30 @@ class Document
   attr_accessor :block
 
   def initialize(&block)
-    xml = self.instance_exec(&block)
-    puts xml.xml
+    @bloqueRecibido = self.instance_exec(&block)
+
+    if(@bloqueRecibido.eql?(nil))
+      puts '{}'
+    else
+      puts @bloqueRecibido
+    end
   end
 
   def xml
-
+    puts @tag.xml
   end
 
   def method_missing(name, *parms, &block)
+    #super(name,parms,&block)
     tag = Tag.with_label(name.to_s)
     parms[0].each do |key, value|
       tag.with_attribute key.to_s, value.to_s
     end unless parms[0] == nil
+    if block
     tag.with_child(self.instance_eval(&block))
+    end
     puts tag.xml
-    tag
+    @tag = tag
   end
 end
 
