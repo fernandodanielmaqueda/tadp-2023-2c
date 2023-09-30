@@ -8,34 +8,42 @@ class Object
 end
 
 class Document
-  attr_accessor :block
+  attr_accessor :tags
 
   def initialize(&block)
-    @bloqueRecibido = self.instance_exec(&block)
-
-    if(@bloqueRecibido.eql?(nil))
-      puts '{}'
+    @tags = Array.new
+    if(block.eql?(nil))
+      @bloqueRecibido = Tag.with_label ''
     else
-      puts @bloqueRecibido
+      value = self.instance_exec(&block)
+      if tags[0].class != Tag and value.class != Array
+        tags[0] = value
+      end
     end
   end
 
   def xml
-    puts @tag.xml
+    puts tags[0].xml
   end
 
   def method_missing(name, *parms, &block)
     #super(name,parms,&block)
-    tag = Tag.with_label(name.to_s)
+    tag = Tag.with_label(name)
     parms[0].each do |key, value|
-      tag.with_attribute key.to_s, value.to_s
+      tag.with_attribute key, value
     end unless parms[0] == nil
-    if block
-    tag.with_child(self.instance_eval(&block))
+    if block != nil
+      childDocument = Document.new(&block)
+      childDocument.tags.each do |tempTag|
+        tag.with_child(tempTag)
+      end
     end
-    puts tag.xml
-    @tag = tag
+    @tags << tag
   end
+
+  def serialize(clase)
+  end
+
 end
 
 class Label
