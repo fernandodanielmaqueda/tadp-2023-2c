@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../lib/estado'
+require_relative 'estado'
 
 class Alumno
   attr_reader :nombre, :legajo, :estado, :telefono
