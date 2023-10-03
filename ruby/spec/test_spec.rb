@@ -160,20 +160,6 @@ end
 # end
 #puts @document0.xml
 
-=begin
-# Deberia ser lo mismo que
-#
-@document0 = Document.new {
-  self.alumno(nombre: @fede.nombre, legajo: @fede.legajo) {
-    self.telefono { @fede.telefono }
-    self.estado(es_regular: true) {
-      finales_rendidos { 3 }
-      materias_aprobadas { 5 }
-    }
-  }
-}
-=end
-
 RSpec.describe "Punto 2: Generación automática" do
 
   describe "Serialize de ejemplo 1" do
