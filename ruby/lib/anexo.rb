@@ -1,3 +1,4 @@
+# Anexo
 class Tag
   attr_reader :label, :attributes, :children
 
@@ -83,3 +84,18 @@ class Array
   end
 end
 
+# Agregados
+class Tag
+
+  def self.with_label_and_attributes(label, hash_attributes)
+
+    tag = Tag.with_label(label)
+
+    hash_attributes.each do |key, value|
+      tag.with_attribute(key, value)
+    end unless hash_attributes == nil
+
+    tag
+  end
+
+end

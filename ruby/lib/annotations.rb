@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 $annotations = Array.new
 
 class Annotations
@@ -14,7 +13,7 @@ end
 
 class Ignore < Annotations
   def initialize
-    puts 'nope'
+    #puts 'nope'
   end
 end
 
@@ -50,7 +49,7 @@ class Object
     $annotations = []
   end
   def self.method_added(method)
-    puts method
+    #puts method
     added_array = $annotations.clone.map do |annotation|
       annotation.owner=method
       annotation
