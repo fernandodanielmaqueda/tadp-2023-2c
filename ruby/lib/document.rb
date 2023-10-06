@@ -16,7 +16,6 @@ class Document
 
   def method_missing(label, *attributes, &children)
 
-    super(label, *attributes, &children)
     tag = Tag.with_label(label)
 
     attributes[0].each do |key, value|
@@ -71,7 +70,7 @@ class Document
     array_attributes.each do |symbol|
       object.send(symbol).each do |element|
         self.serialize(tag, element)
-      end # unless
+      end
     end unless array_attributes == nil
 
     remaining_attributes.each do |symbol|
