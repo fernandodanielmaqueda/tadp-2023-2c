@@ -1,20 +1,7 @@
 require_relative 'anexo'
 require_relative 'annotations'
 
-class Document
-
-  def initialize(parent = nil, root = nil, &xml_block)
-    @parent = parent
-    @root = root
-
-    result = self.instance_eval(&xml_block)
-
-    if result.class != Tag and parent != nil
-      parent.with_child(result)
-    end
-
-  end
-
+module Eval_XML_Block
   def method_missing(label, *attributes, &children)
 
     tag = Tag.with_label(label)
@@ -34,6 +21,44 @@ class Document
     end
 
   end
+end
+
+class Document
+
+  self.binding
+  def initialize(parent = nil, root = nil, &xml_block)
+    @parent = parent
+    @root = root
+
+    self.singleton_class.include(Eval_XML_Block)
+      result = self.instance_eval(&xml_block)
+    self.singleton_class.undef_method(:method_missing)
+
+    if result.class != Tag and parent != nil
+      parent.with_child(result)
+    end
+
+  end
+
+  # def method_missing(label, *attributes, &children)
+  #
+  #   tag = Tag.with_label(label)
+  #
+  #   attributes[0].each do |key, value|
+  #     tag.with_attribute(key, value)
+  #   end unless attributes[0] == nil
+  #
+  #   if children != nil
+  #     Document.new(tag, nil, &children)
+  #   end
+  #
+  #   if @parent.nil?
+  #     @root = tag
+  #   else
+  #     @parent.with_child(tag)
+  #   end
+  #
+  # end
 
   def xml
     @root.xml
