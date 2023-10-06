@@ -16,6 +16,7 @@ class Document
 
   def method_missing(label, *attributes, &children)
 
+    super(label, *attributes, &children)
     tag = Tag.with_label(label)
 
     attributes[0].each do |key, value|
@@ -70,7 +71,7 @@ class Document
     array_attributes.each do |symbol|
       object.send(symbol).each do |element|
         self.serialize(tag, element)
-      end
+      end # unless
     end unless array_attributes == nil
 
     remaining_attributes.each do |symbol|
@@ -86,36 +87,7 @@ class Document
   end
 
   def self.with_root(tag)
-    new(nil, tag) {}
+    self.new(nil, tag) {}
   end
-
-end
-
-# class Object
-#   def method_missing(name, *parms)
-#     super unless name.to_s.match('✨*✨')
-#     ObjectSpace.const_get(name.to_s.gsub('✨', '').to_sym).annotation(parms)
-#   end
-# end
-
-class Label
-  def annotation(*parms)
-    puts parms
-  end
-end
-
-class Ignore
-  def annotation(*parms)
-    puts 'nope'
-  end
-end
-
-class Inline
-  def annotation(&parms)
-    self.instance_eval(&parms)
-  end
-end
-
-class Custom
 
 end
