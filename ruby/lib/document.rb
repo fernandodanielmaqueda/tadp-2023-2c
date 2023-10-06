@@ -25,7 +25,6 @@ end
 
 class Document
 
-  self.binding
   def initialize(parent = nil, root = nil, &xml_block)
     @parent = parent
     @root = root
@@ -39,26 +38,6 @@ class Document
     end
 
   end
-
-  # def method_missing(label, *attributes, &children)
-  #
-  #   tag = Tag.with_label(label)
-  #
-  #   attributes[0].each do |key, value|
-  #     tag.with_attribute(key, value)
-  #   end unless attributes[0] == nil
-  #
-  #   if children != nil
-  #     Document.new(tag, nil, &children)
-  #   end
-  #
-  #   if @parent.nil?
-  #     @root = tag
-  #   else
-  #     @parent.with_child(tag)
-  #   end
-  #
-  # end
 
   def xml
     @root.xml
@@ -74,8 +53,7 @@ class Document
     else
       label = object.class.to_s.downcase
     end
-
-
+    
     remaining_attributes = object.instance_variables.map do |instance_variable_symbol|
       instance_variable_symbol.to_s.sub("@", "").to_sym
     end.filter do |getter|
