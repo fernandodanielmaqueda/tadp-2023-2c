@@ -1,4 +1,5 @@
 require_relative 'anexo'
+require_relative 'annotations'
 
 class Document
 
@@ -40,7 +41,15 @@ class Document
 
   def self.serialize(parent = nil, object)
 
-    label = object.class.to_s.downcase
+    possible_names = object.class.ownAnnotations.filter do |annotation|
+      annotation.owner == object.class && annotation.class == Label
+    end.map do |annotation| annotation.param end
+    if possible_names.size != 0
+      label = possible_names.last
+    else
+      label = object.class.to_s.downcase
+    end
+
 
     remaining_attributes = object.instance_variables.map do |instance_variable_symbol|
       instance_variable_symbol.to_s.sub("@", "").to_sym

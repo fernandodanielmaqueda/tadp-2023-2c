@@ -1,30 +1,11 @@
 require_relative 'document'
 
-#class Object
-  #def method_missing(name, *parms)
-    #super unless name.to_s.match('✨*✨')
-    #ObjectSpace.const_get(name.to_s.gsub('✨', '').to_sym).annotation(parms)
-    #end
-#end
+ñLabelñ("tester")
+class Test
+  ñIgnoreñ
+  attr_accessor :testing, :what
+  attr_accessor :different
+  def tested
 
-class Label
-  def annotation(*parms)
-    puts parms
   end
-end
-
-class Ignore
-  def annotation(*parms)
-    puts 'nope'
-  end
-end
-
-class Inline
-  def annotation(&parms)
-    self.instance_eval(&parms)
-  end
-end
-
-class Custom
-
 end
