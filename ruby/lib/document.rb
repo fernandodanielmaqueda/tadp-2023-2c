@@ -39,9 +39,7 @@ class Document
   end
 
   def xml
-    if @root.nil?
-      raise "El documento no tiene un tag raiz"
-    end
+    raise "El documento no tiene un tag raiz" if @root.nil?
 
     @root.xml
   end
