@@ -1,4 +1,4 @@
-require_relative 'document'
+require_relative 'annotation'
 
 ñLabelñ("tester")
 class Test
@@ -19,8 +19,4 @@ class Test
   def tested
 
   end
-end
-
-$associations.each do |key, value|
-  #puts "#{ObjectSpace._id2ref(key).inspect} => #{value}"
 end

@@ -1,5 +1,4 @@
 require_relative 'anexo'
-require_relative 'annotation'
 
 module Eval_XML_Block
   def method_missing(label, *attributes, &children)

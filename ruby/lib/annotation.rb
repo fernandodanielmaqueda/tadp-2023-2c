@@ -1,7 +1,6 @@
-EMOTICON = "ñ" # ✨
+require_relative 'document'
 
-$annotations_buffer = []
-$associations = Hash.new
+EMOTICON = "ñ" # ✨
 
 # class Annotation
 #   attr_accessor :duenio
@@ -14,7 +13,6 @@ $associations = Hash.new
 #   def doAnnotationAction()
 #   end
 # end
-
 
 class Label #< Annotation
   attr_accessor :name
@@ -50,6 +48,24 @@ class Custom #< Annotation
   end
 end
 
+class Class
+
+  def class_associations
+    @class_associations ||= Array.new
+  end
+  def class_associations=(array)
+    @class_associations = array
+  end
+
+  def method_associations
+    @method_associations ||= Hash.new
+  end
+  def method_associations=(hash)
+    @method_associations = hash
+  end
+
+end
+
 class Object
 
   def method_missing(annotation, *parameters, &block)
@@ -57,54 +73,64 @@ class Object
 
     raise "La clase #{$1} no existe" unless ObjectSpace.const_defined?($1) #NameError: wrong constant name (si el nombre escrito de la clase arranca con minúscula)
 
-    $annotations_buffer << ObjectSpace.const_get($1).new(*parameters, &block) # En caso de que la clase no exista o no pueda ser instanciada con los parámetros dados debe lanzarse una excepción acorde: #ArgumentError #TypeError
+    Object.annotations_buffer << ObjectSpace.const_get($1).new(*parameters, &block) # En caso de que la clase no exista o no pueda ser instanciada con los parámetros dados debe lanzarse una excepción acorde: #ArgumentError #TypeError
   end
 
   def self.inherited(created_subclass)
-    #puts self.inspect
-    #puts created_subclass.inspect
-    #puts $annotations_buffer.inspect
-    #puts "--"
-    $associations[created_subclass.object_id] = $annotations_buffer
-    $annotations_buffer = []
-  end
-
-  def self.method_added(method_symbol)
-    #puts self.inspect
-    #puts method_symbol.inspect
-    #puts $annotations_buffer.inspect
-    #puts "--"
-    $associations[self.instance_method(method_symbol).object_id] = $annotations_buffer
-    # TODO: Hacer append del array en el value
-    $annotations_buffer = []
+    puts "self.inherited"
+    puts self.inspect
+    puts created_subclass.inspect
+    puts self.annotations_buffer.inspect
+    created_subclass.class_associations = self.annotations_buffer
+    self.annotations_buffer = []
+    puts "--"
   end
 
   def self.attr_reader(*symbols)
     super
-    # puts "attr_reader"
-    # puts self.inspect
-    # puts symbols.inspect
-    # puts $annotations_buffer.inspect
-    # puts "--"
-    symbols.each do |symbol|
-      $associations[self.instance_method(symbol).object_id] = $annotations_buffer
-      # TODO: Hacer append del array en el value
-    end
-    $annotations_buffer = []
+    self.attr_reader_and_accessor(*symbols)
   end
 
   def self.attr_accessor(*symbols)
     super
-    # puts "attr_accessor"
-    # puts self.inspect
-    # puts symbols.inspect
-    # puts $annotations_buffer.inspect
-    # puts "--"
+    self.attr_reader_and_accessor(*symbols)
+  end
+
+  def self.method_added(method_symbol)
+    puts "self.method_added"
+    puts self.inspect
+    puts method_symbol.inspect
+    puts Object.annotations_buffer.inspect
+    self.method_associations[method_symbol] = Object.annotations_buffer
+    # puts self.instance_method(method_symbol).inspect
+    # TODO: Hacer append del array en el value
+    Object.annotations_buffer = []
+    puts "--"
+  end
+
+  def self.annotations_buffer
+    @annotations_buffer ||= Array.new
+  end
+  def self.annotations_buffer=(array)
+    @annotations_buffer = array
+  end
+
+  private
+
+  def self.attr_reader_and_accessor(*symbols)
+
+    puts "attr_reader / attr_accessor"
+    puts self.inspect
+    puts symbols.inspect
+    puts Object.annotations_buffer.inspect
     symbols.each do |symbol|
-      $associations[self.instance_method(symbol).object_id] = $annotations_buffer
+      self.method_associations[symbol] = Object.annotations_buffer
+      # puts self.instance_method(symbol)
       # TODO: Hacer append del array en el value
     end
-    $annotations_buffer = []
+    puts self.method_associations.inspect
+    Object.annotations_buffer = []
+    puts "--"
   end
 
 end
