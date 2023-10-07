@@ -1,5 +1,5 @@
 require_relative 'anexo'
-require_relative 'annotations'
+require_relative 'annotation'
 
 module Eval_XML_Block
   def method_missing(label, *attributes, &children)
@@ -18,22 +18,13 @@ module Eval_XML_Block
 
   end
 end
-ñLabelñ(4)
-ñLabelñ(4)
-ñLabelñ(4)
-ñInlineñ
-ñLabelñ(4)
-class A
-
-end
-
 
 class Document
 
   attr_accessor :root
 
   def self.with_root(tag)
-    self.new.root=(tag)
+    self.new.root = tag
   end
 
   def initialize(parent = nil, &xml_block)
@@ -59,21 +50,17 @@ class Document
 
   def self.serialize(parent = nil, object)
     label = nombre_en_minusculas_de_la_clase_de(object)
-
+    #objectAnnotations = self.onlySelectedObjectAnnotations(object)
+    #self.doForEveryAnnotationAnAction(objectAnnotations, label) unless objectAnnotations.size == 0
 
     remaining_attributes = atributos_con_getter_de(object)
 
     label_attributes, remaining_attributes = separar_labels_de_remaining_attributes(remaining_attributes, object)
     array_attributes, remaining_attributes = separar_arrays_de_remaining_attributes(remaining_attributes, object)
 
-
-    label = self.applyAnnotationsOnLabel(object, label)
     label_attributes = hash_clave_valor_de(label_attributes, object)
-    label_attributes = self.applyAnnotationsOnLabelAttributes(label_attributes, object)
-
 
     tag = Tag.with_label_and_attributes(label, label_attributes)
-
 
     self.serializar_arrays(array_attributes, tag, object)
     self.serializar_restantes(remaining_attributes, tag, object)
@@ -88,46 +75,15 @@ class Document
 
 
   private
-  def self.applyAnnotationsOnLabelAttributes(label_attributes, object)
-    annotations_list_attributes = []
-    label_attributes.each do |key, value|
-      annotation = object.class.ownAnnotations.find { |ann| ann.owner.eql?(key) }
-      annotations_list_attributes << annotation if annotation
-    end
-    label_attributes = self.match_and_modify_attributes(annotations_list_attributes, label_attributes)
-    label_attributes
-  end
-  def self.applyAnnotationsOnLabel(object, label)
-    objectAnnotations = self.onlySelectedObjectAnnotations(object)
-    label = self.doForEveryAnnotationAnAction(objectAnnotations, label) unless objectAnnotations.size == 0
-    label
-  end
-  def self.match_and_modify_attributes(annotations, label_attributes)
-    newHash = []
-    temporalList = label_attributes.to_a
-    annotations.each do |annotation|
-      clave = annotation.owner
-      temporalList.each_with_index do |par, index|
-        key,value = par
-        if(key == clave)
-          temporalList.delete_at(index)
-          newHashElement = annotation.doAnnotationActionOnAttribute(key, value)
-          newHash << newHashElement unless newHashElement.nil?
-      end
-    end
-    end
-    newHash += temporalList
-    newHash.to_h
-    end
-  def self.onlySelectedObjectAnnotations(object)
-    object.class.ownAnnotations.filter do |annotation|
-      annotation.ownerIsClassOf?(object)
-    end
-  end
-  def self.doForEveryAnnotationAnAction(annotations, label)
-    label = annotations.inject(label) { |label,annotation |annotation.doAnnotationAction(label)  }
-    return label
-  end
+
+  # def self.onlySelectedObjectAnnotations(object)
+  #   object.class.associated_annotations.filter do |annotation|
+  #     annotation.ownerIsClassOf?(object)
+  #   end
+  # end
+  # def self.doForEveryAnnotationAnAction(annotations, label)
+  #   annotations.each { |annotation| annotation.doAnnotationAction(label) }
+  # end
 
   def evaluar(&xml_block)
     self.singleton_class.include(Eval_XML_Block)
@@ -189,63 +145,3 @@ class Document
   end
 
 end
-
-ñLabelñ("tester")
-class TestA
-  ñIgnoreñ
-  attr_reader :testing, :what
-  ñLabelñ('boenas')
-  attr_reader :different
-  ñLabelñ(5)
-  attr_reader :number
-  #
-  def initialize
-    @testing=10
-    @what='asdfs'
-    @different='hola'
-    @number='hola'
-  end
-  # def tested
-  #
-  # end
-end
-
-ñIgnoreñ
-class TestB
-end
-Document.serialize(TestA.new).xml
-Document.serialize(TestB.new).xml
-
-ñLabelñ("TEST1")
-class Estado
-  ñLabelñ("TEST2")
-  attr_reader :es_regular
-  ñIgnoreñ
-  attr_reader :materias_aprobadas
-  attr_reader :finales_rendidos
-
-  def initialize(finales_rendidos, materias_aprobadas, es_regular)
-    @finales_rendidos = finales_rendidos
-    @materias_aprobadas = materias_aprobadas
-    @es_regular = es_regular
-  end
-end
-
-ñLabelñ("TEST4")
-class TestC
-  ñLabelñ("TEST5")
-  attr_reader :nombre
-  ñIgnoreñ
-  attr_reader :legajo
-  ñLabelñ("Hola")
-  attr_reader :estado
-  def initialize(nombre, legajo, telefono, estado)
-    @nombre = nombre
-    @legajo = legajo
-    @telefono = telefono
-    @estado = estado
-  end
-
-end
-unTest =TestC.new("Jorge",4325662,3242652,Estado.new(3,6,true))
-Document.serialize(unTest)

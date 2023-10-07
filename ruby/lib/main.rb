@@ -15,7 +15,12 @@ class Test
     @different='hola'
     @number='hola'
   end
+
   def tested
 
   end
+end
+
+$associations.each do |key, value|
+  #puts "#{ObjectSpace._id2ref(key).inspect} => #{value}"
 end
