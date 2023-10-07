@@ -10,6 +10,8 @@ class Annotations
   end
   def doAnnotationAction(label)
   end
+  def doAnnotationActionOnAttribute(attribute, key)
+  end
 end
 
 
@@ -23,6 +25,12 @@ class Label < Annotations
     super(label)
     label = @param
     label
+  end
+  def doAnnotationActionOnAttribute(attribute, key)
+    super(attribute,key)
+    newHash = {}
+    newHash[@param.to_s.to_sym] = attribute[key]
+    newHash
   end
 end
 

@@ -67,9 +67,17 @@ class Document
     label_attributes, remaining_attributes = separar_labels_de_remaining_attributes(remaining_attributes, object)
     array_attributes, remaining_attributes = separar_arrays_de_remaining_attributes(remaining_attributes, object)
 
+
+
     label_attributes = hash_clave_valor_de(label_attributes, object)
 
+    annotations_list_attributes = []
+    label_attributes.each do |key, value|
+      annotation = object.class.ownAnnotations.find { |ann| ann.owner.eql?(key) }
+      annotations_list_attributes << annotation if annotation
+    end
 
+    label_attributes = self.match_and_modify_attributes(annotations_list_attributes, label_attributes)
 
     tag = Tag.with_label_and_attributes(label, label_attributes)
 
@@ -87,7 +95,18 @@ class Document
 
 
   private
-
+  def self.match_and_modify_attributes(annotations, label_attributes)
+    newHash = {}
+    annotations.each do |annotation|
+      clave = annotation.owner
+      if label_attributes.key?(clave)
+        element = label_attributes.select { |key, _| key == clave }
+        newHashElement = annotation.doAnnotationActionOnAttribute(element, clave)
+        newHash[newHashElement.keys[0]] = newHashElement.values[0] unless newHashElement.nil?
+      end
+    end
+    newHash
+  end
   def self.onlySelectedObjectAnnotations(object)
     object.class.ownAnnotations.filter do |annotation|
       annotation.ownerIsClassOf?(object)
@@ -161,19 +180,19 @@ end
 
 ñLabelñ("tester")
 class TestA
-  # ñIgnoreñ
-  # attr_accessor :testing, :what
-  # ñLabelñ('boenas')
-  # attr_accessor :different
-  # ñLabelñ(5)
-  # attr_accessor :number
+  ñIgnoreñ
+  attr_reader :testing, :what
+  ñLabelñ('boenas')
+  attr_reader :different
+  ñLabelñ(5)
+  attr_reader :number
   #
-  # def initialize
-  #   @testing=10
-  #   @what='asdfs'
-  #   @different='hola'
-  #   @number='hola'
-  # end
+  def initialize
+    @testing=10
+    @what='asdfs'
+    @different='hola'
+    @number='hola'
+  end
   # def tested
   #
   # end
@@ -184,3 +203,37 @@ class TestB
 end
 Document.serialize(TestA.new).xml
 Document.serialize(TestB.new).xml
+
+ñLabelñ("TEST1")
+class Estado
+  ñLabelñ("TEST2")
+  attr_reader :es_regular
+  ñIgnoreñ
+  attr_reader :materias_aprobadas
+  ñLabelñ("Buenas")
+  attr_reader :finales_rendidos
+
+  def initialize(finales_rendidos, materias_aprobadas, es_regular)
+    @finales_rendidos = finales_rendidos
+    @materias_aprobadas = materias_aprobadas
+    @es_regular = es_regular
+  end
+end
+
+ñLabelñ("TEST4")
+class TestC
+  ñLabelñ("TEST5")
+  attr_reader :nombre
+  ñIgnoreñ
+  attr_reader :legajo
+  ñLabelñ("Hola")
+  attr_reader :estado
+  def initialize(nombre, legajo, telefono, estado)
+    @nombre = nombre
+    @legajo = legajo
+    @telefono = telefono
+    @estado = estado
+  end
+
+end
+#unTest =TestC.new("Jorge",4325662,3242652,Estado.new(3,6,true))
