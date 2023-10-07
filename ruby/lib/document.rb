@@ -18,6 +18,15 @@ module Eval_XML_Block
 
   end
 end
+ñLabelñ(4)
+ñLabelñ(4)
+ñLabelñ(4)
+ñInlineñ
+ñLabelñ(4)
+class A
+
+end
+
 
 class Document
 
@@ -37,7 +46,6 @@ class Document
         parent.with_child(result)
       end
     end
-
   end
 
   def xml
@@ -48,16 +56,11 @@ class Document
     @root.xml
   end
 
-  def self.serialize(parent = nil, object)
 
-    possible_names = object.class.ownAnnotations.filter do |annotation|
-      annotation.owner == object.class && annotation.class == Label
-    end.map do |annotation| annotation.param end
-    if possible_names.size != 0
-      label = possible_names.last
-    else
-      label = nombre_en_minusculas_de_la_clase_de(object)
-    end
+  def self.serialize(parent = nil, object)
+    label = nombre_en_minusculas_de_la_clase_de(object)
+    objectAnnotations = self.onlySelectedObjectAnnotations(object)
+    self.doForEveryAnnotationAnAction(objectAnnotations, label) unless objectAnnotations.size == 0
 
     remaining_attributes = atributos_con_getter_de(object)
 
@@ -66,7 +69,10 @@ class Document
 
     label_attributes = hash_clave_valor_de(label_attributes, object)
 
+
+
     tag = Tag.with_label_and_attributes(label, label_attributes)
+
 
     self.serializar_arrays(array_attributes, tag, object)
     self.serializar_restantes(remaining_attributes, tag, object)
@@ -79,7 +85,17 @@ class Document
 
   end
 
+
   private
+
+  def self.onlySelectedObjectAnnotations(object)
+    object.class.ownAnnotations.filter do |annotation|
+      annotation.ownerIsClassOf?(object)
+    end
+  end
+  def self.doForEveryAnnotationAnAction(annotations, label)
+    annotations.each { |annotation| annotation.doAnnotationAction(label) }
+  end
 
   def evaluar(&xml_block)
     self.singleton_class.include(Eval_XML_Block)
@@ -141,3 +157,24 @@ class Document
   end
 
 end
+
+ñLabelñ("tester")
+class TestA
+  ñIgnoreñ
+  attr_accessor :testing, :what
+  ñLabelñ('boenas')
+  attr_accessor :different
+  ñLabelñ(5)
+  attr_accessor :number
+
+  def initialize
+    @testing=10
+    @what='asdfs'
+    @different='hola'
+    @number='hola'
+  end
+  def tested
+
+  end
+end
+Document.serialize(TestA.new).xml

@@ -2,18 +2,36 @@ $annotations = Array.new
 
 class Annotations
   attr_accessor :owner
+  def ownerIsClass?
+    self.owner.is_a?(Class)
+  end
+  def ownerIsClassOf?(object)
+    @owner.eql?(object.class)
+  end
+  def doAnnotationAction()
+  end
 end
+
 
 class Label < Annotations
   attr_accessor :param
   def initialize(param)
     @param = param
   end
+
+  def doAnnotationAction
+    super()
+    @param
+  end
 end
 
 class Ignore < Annotations
   def initialize
     #puts 'nope'
+  end
+  def doAnnotationAction ()
+    super
+    ''
   end
 end
 
