@@ -60,7 +60,7 @@ class Document
   def self.serialize(parent = nil, object)
     label = nombre_en_minusculas_de_la_clase_de(object)
     objectAnnotations = self.onlySelectedObjectAnnotations(object)
-    self.doForEveryAnnotationAnAction(objectAnnotations, label) unless objectAnnotations.size == 0
+    label = self.doForEveryAnnotationAnAction(objectAnnotations, label) unless objectAnnotations.size == 0
 
     remaining_attributes = atributos_con_getter_de(object)
 
@@ -94,7 +94,8 @@ class Document
     end
   end
   def self.doForEveryAnnotationAnAction(annotations, label)
-    annotations.each { |annotation| annotation.doAnnotationAction(label) }
+    label = annotations.inject(label) { |label,annotation |annotation.doAnnotationAction(label)  }
+    return label
   end
 
   def evaluar(&xml_block)
@@ -160,21 +161,26 @@ end
 
 ñLabelñ("tester")
 class TestA
-  ñIgnoreñ
-  attr_accessor :testing, :what
-  ñLabelñ('boenas')
-  attr_accessor :different
-  ñLabelñ(5)
-  attr_accessor :number
+  # ñIgnoreñ
+  # attr_accessor :testing, :what
+  # ñLabelñ('boenas')
+  # attr_accessor :different
+  # ñLabelñ(5)
+  # attr_accessor :number
+  #
+  # def initialize
+  #   @testing=10
+  #   @what='asdfs'
+  #   @different='hola'
+  #   @number='hola'
+  # end
+  # def tested
+  #
+  # end
+end
 
-  def initialize
-    @testing=10
-    @what='asdfs'
-    @different='hola'
-    @number='hola'
-  end
-  def tested
-
-  end
+ñIgnoreñ
+class TestB
 end
 Document.serialize(TestA.new).xml
+Document.serialize(TestB.new).xml

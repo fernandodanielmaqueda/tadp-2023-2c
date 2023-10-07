@@ -8,7 +8,7 @@ class Annotations
   def ownerIsClassOf?(object)
     @owner.eql?(object.class)
   end
-  def doAnnotationAction()
+  def doAnnotationAction(label)
   end
 end
 
@@ -19,9 +19,10 @@ class Label < Annotations
     @param = param
   end
 
-  def doAnnotationAction
-    super()
-    @param
+  def doAnnotationAction(label)
+    super(label)
+    label = @param
+    label
   end
 end
 
@@ -29,9 +30,10 @@ class Ignore < Annotations
   def initialize
     #puts 'nope'
   end
-  def doAnnotationAction ()
-    super
-    ''
+  def doAnnotationAction (label)
+    super(label)
+    label = ''
+    label
   end
 end
 
