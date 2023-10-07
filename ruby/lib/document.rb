@@ -59,8 +59,7 @@ class Document
 
   def self.serialize(parent = nil, object)
     label = nombre_en_minusculas_de_la_clase_de(object)
-    objectAnnotations = self.onlySelectedObjectAnnotations(object)
-    label = self.doForEveryAnnotationAnAction(objectAnnotations, label) unless objectAnnotations.size == 0
+
 
     remaining_attributes = atributos_con_getter_de(object)
 
@@ -68,16 +67,10 @@ class Document
     array_attributes, remaining_attributes = separar_arrays_de_remaining_attributes(remaining_attributes, object)
 
 
-
+    label = self.applyAnnotationsOnLabel(object, label)
     label_attributes = hash_clave_valor_de(label_attributes, object)
+    label_attributes = self.applyAnnotationsOnLabelAttributes(label_attributes, object)
 
-    annotations_list_attributes = []
-    label_attributes.each do |key, value|
-      annotation = object.class.ownAnnotations.find { |ann| ann.owner.eql?(key) }
-      annotations_list_attributes << annotation if annotation
-    end
-
-    label_attributes = self.match_and_modify_attributes(annotations_list_attributes, label_attributes)
 
     tag = Tag.with_label_and_attributes(label, label_attributes)
 
@@ -95,18 +88,37 @@ class Document
 
 
   private
+  def self.applyAnnotationsOnLabelAttributes(label_attributes, object)
+    annotations_list_attributes = []
+    label_attributes.each do |key, value|
+      annotation = object.class.ownAnnotations.find { |ann| ann.owner.eql?(key) }
+      annotations_list_attributes << annotation if annotation
+    end
+    label_attributes = self.match_and_modify_attributes(annotations_list_attributes, label_attributes)
+    label_attributes
+  end
+  def self.applyAnnotationsOnLabel(object, label)
+    objectAnnotations = self.onlySelectedObjectAnnotations(object)
+    label = self.doForEveryAnnotationAnAction(objectAnnotations, label) unless objectAnnotations.size == 0
+    label
+  end
   def self.match_and_modify_attributes(annotations, label_attributes)
-    newHash = {}
+    newHash = []
+    temporalList = label_attributes.to_a
     annotations.each do |annotation|
       clave = annotation.owner
-      if label_attributes.key?(clave)
-        element = label_attributes.select { |key, _| key == clave }
-        newHashElement = annotation.doAnnotationActionOnAttribute(element, clave)
-        newHash[newHashElement.keys[0]] = newHashElement.values[0] unless newHashElement.nil?
+      temporalList.each_with_index do |par, index|
+        key,value = par
+        if(key == clave)
+          temporalList.delete_at(index)
+          newHashElement = annotation.doAnnotationActionOnAttribute(key, value)
+          newHash << newHashElement unless newHashElement.nil?
       end
     end
-    newHash
-  end
+    end
+    newHash += temporalList
+    newHash.to_h
+    end
   def self.onlySelectedObjectAnnotations(object)
     object.class.ownAnnotations.filter do |annotation|
       annotation.ownerIsClassOf?(object)
@@ -210,7 +222,6 @@ class Estado
   attr_reader :es_regular
   ñIgnoreñ
   attr_reader :materias_aprobadas
-  ñLabelñ("Buenas")
   attr_reader :finales_rendidos
 
   def initialize(finales_rendidos, materias_aprobadas, es_regular)
@@ -236,4 +247,5 @@ class TestC
   end
 
 end
-#unTest =TestC.new("Jorge",4325662,3242652,Estado.new(3,6,true))
+unTest =TestC.new("Jorge",4325662,3242652,Estado.new(3,6,true))
+Document.serialize(unTest)
