@@ -1,6 +1,9 @@
-class Custom #< Annotation
-  attr_accessor :block
-  def initialize(&block)
-    @block = block
+class Custom
+  #include Annotation
+
+  attr_reader :xml_block
+
+  def initialize(&xml_block)
+    @xml_block = xml_block
   end
 end

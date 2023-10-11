@@ -46,47 +46,78 @@ class Document
 
 
   def self.serialize(parent = nil, object)
-    label = nombre_en_minusculas_de_la_clase_de(object)
-    #objectAnnotations = self.onlySelectedObjectAnnotations(object)
-    #self.doForEveryAnnotationAnAction(objectAnnotations, label) unless objectAnnotations.size == 0
 
-    remaining_attributes = atributos_con_getter_de(object)
+    #object.class.apply_class_annotations
 
-    label_attributes, remaining_attributes = separar_labels_de_remaining_attributes(remaining_attributes, object)
-    array_attributes, remaining_attributes = separar_arrays_de_remaining_attributes(remaining_attributes, object)
+    unless object.class.ignore?
+      if true # Considerar custom o no
+        label = etiqueta_de_la_clase_de(object) || nombre_en_minusculas_de_la_clase_de(object)
 
-    label_attributes = hash_clave_valor_de(label_attributes, object)
+        remaining_attributes = atributos_con_getter_de(object)
 
-    tag = Tag.with_label_and_attributes(label, label_attributes)
+        #remaining_attributes.each do |getter|
+          #puts (object.class.instance_method(:testing) == object.class.instance_method(:testing)).inspect
+          # puts getter.inspect
+          # puts object.class.method_associations[getter].inspect
+          # puts object.class.instance_method(getter).inspect
+          # puts "Hola"
+          # object.class.instance_method(getter).ignore = true
+          # puts object.class.instance_method(getter).ignore?.inspect
+          # puts "Chau"
+        #(object.class.method_associations[getter] || Array.new).each do |annotation|
+              #puts annotation.inspect
+        #annotation.apply_to_method(object.class.instance_method(getter))
+        # end
+          #puts object.class.instance_method(getter).ignore?.inspect
+          #end
 
-    self.serializar_arrays(array_attributes, tag, object)
-    self.serializar_restantes(remaining_attributes, tag, object)
+    #remaining_attributes.filter! do |getter|
+          # puts "remaining_attributes.filter! do |getter|"
+          # puts object.inspect
+          # puts object.method(getter).inspect
+          # puts (object.method(getter).ignore?).inspect
+          #not object.class.instance_method(getter).ignore?
+          #end
 
-    if parent.nil?
-      self.with_root(tag)
-    else
-      parent.with_child(tag)
+        # Lógica de inline (separar/particionar los inline_attributes de remaining_attributes que correspondan)
+        # inline_attributes, remaining_attributes = separar_inlines_de_remaining_attributes(remaining_attributes, object)
+
+        label_attributes, remaining_attributes = separar_labels_de_remaining_attributes(remaining_attributes, object)
+        array_attributes, remaining_attributes = separar_arrays_de_remaining_attributes(remaining_attributes, object)
+
+        label_attributes = hash_clave_valor_de(label_attributes, object)
+
+        # Verificar aquí que en label_attributes no hayan quedado dos o más atributos con el mismo nombre:
+        #raise "La etiqueta #{label} ha quedado con dos atributos con el mismo nombre: #{}"
+
+        tag = Tag.with_label_and_attributes(label, label_attributes)
+
+        self.serializar_arrays(array_attributes, tag, object)
+        self.serializar_restantes(remaining_attributes, tag, object)
+
+        if parent.nil?
+          self.with_root(tag)
+        else
+          parent.with_child(tag)
+        end
+      else
+        #  Custom
+      end
     end
 
   end
 
-
   private
-
-  # def self.onlySelectedObjectAnnotations(object)
-  #   object.class.associated_annotations.filter do |annotation|
-  #     annotation.ownerIsClassOf?(object)
-  #   end
-  # end
-  # def self.doForEveryAnnotationAnAction(annotations, label)
-  #   annotations.each { |annotation| annotation.doAnnotationAction(label) }
-  # end
 
   def evaluar(&xml_block)
     self.singleton_class.include(Eval_XML_Block)
     result = self.instance_eval(&xml_block)
     self.singleton_class.undef_method(:method_missing)
     result
+  end
+
+  def self.etiqueta_de_la_clase_de(object)
+    object.class.label
   end
 
   def self.nombre_en_minusculas_de_la_clase_de(object)
