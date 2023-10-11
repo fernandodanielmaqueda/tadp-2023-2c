@@ -55,29 +55,13 @@ class Document
 
         remaining_attributes = atributos_con_getter_de(object)
 
-        #remaining_attributes.each do |getter|
-          #puts (object.class.instance_method(:testing) == object.class.instance_method(:testing)).inspect
-          # puts getter.inspect
-          # puts object.class.method_associations[getter].inspect
-          # puts object.class.instance_method(getter).inspect
-          # puts "Hola"
-          # object.class.instance_method(getter).ignore = true
-          # puts object.class.instance_method(getter).ignore?.inspect
-          # puts "Chau"
-        #(object.class.method_associations[getter] || Array.new).each do |annotation|
-              #puts annotation.inspect
-        #annotation.apply_to_method(object.class.instance_method(getter))
+        # remaining_attributes.each do |getter|
+        #   object.class.apply_instance_method_annotations(getter)
         # end
-          #puts object.class.instance_method(getter).ignore?.inspect
-          #end
 
-    #remaining_attributes.filter! do |getter|
-          # puts "remaining_attributes.filter! do |getter|"
-          # puts object.inspect
-          # puts object.method(getter).inspect
-          # puts (object.method(getter).ignore?).inspect
-          #not object.class.instance_method(getter).ignore?
-          #end
+        remaining_attributes.filter! do |getter|
+          not object.class.unbound_instance_methods[getter].ignore?
+        end
 
         # Lógica de inline (separar/particionar los inline_attributes de remaining_attributes que correspondan)
         # inline_attributes, remaining_attributes = separar_inlines_de_remaining_attributes(remaining_attributes, object)
@@ -85,7 +69,11 @@ class Document
         label_attributes, remaining_attributes = separar_labels_de_remaining_attributes(remaining_attributes, object)
         array_attributes, remaining_attributes = separar_arrays_de_remaining_attributes(remaining_attributes, object)
 
+        #puts label_attributes.inspect
+
         label_attributes = hash_clave_valor_de(label_attributes, object)
+
+        #puts label_attributes.inspect
 
         # Verificar aquí que en label_attributes no hayan quedado dos o más atributos con el mismo nombre:
         #raise "La etiqueta #{label} ha quedado con dos atributos con el mismo nombre: #{}"
@@ -100,9 +88,11 @@ class Document
         else
           parent.with_child(tag)
         end
+
       else
         #  Custom
       end
+
     end
 
   end
@@ -155,7 +145,8 @@ class Document
   end
 
   def self.hash_clave_valor_de(label_attributes, object)
-    Hash[ label_attributes.map { |getter| [getter, object.send(getter)] } ]
+    #Hash[ label_attributes.map { |getter| [(object.class.unbound_instance_methods[getter].label || getter), object.send(getter)] } ]
+    label_attributes.map { |getter| [(object.class.unbound_instance_methods[getter].label || getter), object.send(getter)] }
   end
 
   def self.serializar_arrays(array_attributes, tag, object)

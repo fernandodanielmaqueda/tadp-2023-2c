@@ -37,23 +37,5 @@ end
 
 puts Document.serialize(Test.new).xml
 
-#puts Test.class_associations.inspect
-
-#Test.new.method(:what).label
-
 # Para solucionar el warning de redefinir method_missing en Object:
 #Mensaje: unObjeto.respond_to? | Método: def respond_to_missing(nombre_mensaje, include_private = false)
-
-
-#puts Object.method(:new).instance_variable.inspect
-#clone name original_name owner receiver source_location super_method Method
-# singleton_class define_singleton_method instance_variables instance_variable_set singleton_method singleton_methods methods extend Object
-
-class Prueba
-
-  def self.clase
-
-  end
-  def instancia
-  end
-end

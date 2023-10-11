@@ -33,7 +33,7 @@ class Object
 
     self.unbound_instance_methods[method_symbol] = self.instance_method(method_symbol)
 
-    self.apply_instance_methods_annotations(method_symbol)
+    self.apply_instance_method_annotations(method_symbol)
   end
 
   private

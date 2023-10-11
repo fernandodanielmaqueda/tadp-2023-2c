@@ -8,7 +8,3 @@ class Ignore
     unbound_method.ignore = true
   end
 end
-
-def metodo
-
-end
