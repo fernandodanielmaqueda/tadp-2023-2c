@@ -1,3 +1,3 @@
 class UnboundMethod
-  include Serialize_Framework
+  include Method_Serialize_Framework
 end

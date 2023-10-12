@@ -1,9 +1,9 @@
-# Anexo
+require_relative 'array'
+
 class Tag
   attr_reader :label, :attributes, :children
 
   def self.with_label(label)
-    #puts "self.with_label(\"#{label}\")"
     new(label)
   end
 
@@ -16,19 +16,16 @@ class Tag
   # Todos los with_x son setters.
 
   def with_label(label)
-    #puts "with_label(\"#{label}\")"
     @label = label
     self
   end
 
   def with_attribute(label, value)
-    #puts "with_attribute(\"#{label}\", #{value.inspect})"
     @attributes[label] = value
     self
   end
 
   def with_child(child)
-    #puts "with_child(#{child.inspect}) --- #{self.inspect}"
     @children << child
     self
   end
@@ -68,25 +65,8 @@ class Tag
                      value.to_s
                    end
   end
-end
 
-# La clase Array es una modificación de la clase Array general para incluirle el método xml_join.
-
-class Array
-  def xml_join(separator)
-    self.join(separator).instance_eval do
-      if !empty?
-        "#{separator}#{self}"
-      else
-        self
-      end
-    end
-  end
-end
-
-# Agregados
-class Tag
-
+  # Agregado propio
   def self.with_label_and_attributes(label, hash_attributes)
 
     tag = Tag.with_label(label)

@@ -1,4 +1,4 @@
-require_relative 'anexo'
+require_relative 'tag'
 
 module Eval_XML_Block
   def method_missing(label, *attributes, &children)
@@ -44,39 +44,34 @@ class Document
     @root.xml
   end
 
-
   def self.serialize(parent = nil, object)
 
-    #object.class.apply_class_annotations
-
-    unless object.class.ignore?
+    if not object.class.ignore?
       if true # Considerar custom o no
         label = etiqueta_de_la_clase_de(object) || nombre_en_minusculas_de_la_clase_de(object)
 
         remaining_attributes = atributos_con_getter_de(object)
 
-        # remaining_attributes.each do |getter|
-        #   object.class.apply_instance_method_annotations(getter)
-        # end
-
         remaining_attributes.filter! do |getter|
           not object.class.unbound_instance_methods[getter].ignore?
         end
 
-        # Lógica de inline (separar/particionar los inline_attributes de remaining_attributes que correspondan)
-        # inline_attributes, remaining_attributes = separar_inlines_de_remaining_attributes(remaining_attributes, object)
-
+        inline_attributes, remaining_attributes = separar_inlines_de_remaining_attributes(remaining_attributes, object)
         label_attributes, remaining_attributes = separar_labels_de_remaining_attributes(remaining_attributes, object)
         array_attributes, remaining_attributes = separar_arrays_de_remaining_attributes(remaining_attributes, object)
 
-        #puts label_attributes.inspect
+        #inline_attributes = Hash[ inline_attributes.map { |getter| [abstraction(object, getter), object.class.unbound_instance_methods[getter].inline_proc.call(object.send(getter))] } ]
+
+        #[String, TrueClass, FalseClass, Numeric, NilClass].any? {|class_element| object.send(getter).is_a? class_element}
+
+
+        #puts inline_attributes.inspect
+
+        # Hasta acá inline
+
+        self.verificar_que_no_hayan_atributos_con_el_mismo_nombre(label, label_attributes, object)
 
         label_attributes = hash_clave_valor_de(label_attributes, object)
-
-        #puts label_attributes.inspect
-
-        # Verificar aquí que en label_attributes no hayan quedado dos o más atributos con el mismo nombre:
-        #raise "La etiqueta #{label} ha quedado con dos atributos con el mismo nombre: #{}"
 
         tag = Tag.with_label_and_attributes(label, label_attributes)
 
@@ -93,6 +88,8 @@ class Document
         #  Custom
       end
 
+    else
+      ""
     end
 
   end
@@ -132,6 +129,12 @@ class Document
     end
   end
 
+  def self.separar_inlines_de_remaining_attributes(remaining_attributes, object)
+    remaining_attributes.partition do |getter|
+      object.class.unbound_instance_methods[getter].inline_proc != nil
+    end
+  end
+
   def self.separar_labels_de_remaining_attributes(remaining_attributes, object)
     remaining_attributes.partition do |getter|
       [String, TrueClass, FalseClass, Numeric, NilClass].any? {|class_element| object.send(getter).is_a? class_element}
@@ -144,9 +147,17 @@ class Document
     end
   end
 
+  def self.verificar_que_no_hayan_atributos_con_el_mismo_nombre(label, label_attributes, object)
+    duplicates = label_attributes.map { |getter| abstraction(object, getter) }.duplicates
+    raise "La etiqueta #{label} ha quedado con dos o mas atributos con los mismos nombres: #{duplicates.inspect}" unless duplicates.empty?
+  end
+
   def self.hash_clave_valor_de(label_attributes, object)
-    #Hash[ label_attributes.map { |getter| [(object.class.unbound_instance_methods[getter].label || getter), object.send(getter)] } ]
-    label_attributes.map { |getter| [(object.class.unbound_instance_methods[getter].label || getter), object.send(getter)] }
+    Hash[ label_attributes.map { |getter| [abstraction(object, getter), object.send(getter)] } ]
+  end
+
+  def self.abstraction(object, getter)
+    object.class.unbound_instance_methods[getter].label || getter
   end
 
   def self.serializar_arrays(array_attributes, tag, object)

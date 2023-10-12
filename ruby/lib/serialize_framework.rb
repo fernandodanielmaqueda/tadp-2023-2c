@@ -1,10 +1,7 @@
-module Serialize_Framework
+module Class_Serialize_Framework
 
-  attr_accessor :label
-  attr_writer :ignore
+end
 
-  def ignore?
-    @ignore ||= false
-  end
+module Method_Serialize_Framework
 
 end

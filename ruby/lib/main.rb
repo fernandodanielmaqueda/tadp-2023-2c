@@ -3,7 +3,7 @@ require_relative 'unboundmethod'
 require_relative 'class'
 require_relative 'object'
 
-require_relative 'annotation'
+require_relative 'document'
 require_relative 'label'
 require_relative 'ignore'
 require_relative 'inline'
@@ -13,11 +13,9 @@ require_relative 'custom'
 
 ñLabelñ("tester")
 class Test
-  ñIgnoreñ
-  ñIgnoreñ
-  ñIgnoreñ
   attr_accessor :testing, :what
   ñLabelñ('boenas')
+  ñInlineñ {|campo| campo.upcase}
   attr_accessor :different
   ñLabelñ(5)
   attr_accessor :number
@@ -37,5 +35,5 @@ end
 
 puts Document.serialize(Test.new).xml
 
-# Para solucionar el warning de redefinir method_missing en Object:
+# Al redefinir method_missing en Object:
 #Mensaje: unObjeto.respond_to? | Método: def respond_to_missing(nombre_mensaje, include_private = false)
