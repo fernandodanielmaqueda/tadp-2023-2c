@@ -56,24 +56,24 @@ class Document
           not object.class.unbound_instance_methods[getter].ignore?
         end
 
+        # No utilizamos el orden en el que se leyeron los atributos para mostrarlos en el tag
         inline_attributes, remaining_attributes = separar_inlines_de_remaining_attributes(remaining_attributes, object)
         label_attributes, remaining_attributes = separar_labels_de_remaining_attributes(remaining_attributes, object)
+
+        # Esta partición en concreto se podría reemplazar con un if-else de forma tal que se serialicen en el orden en el que se leyeron los atributos y no primero los array_attributes y luego los remaining_attributes
         array_attributes, remaining_attributes = separar_arrays_de_remaining_attributes(remaining_attributes, object)
 
-        #inline_attributes = Hash[ inline_attributes.map { |getter| [abstraction(object, getter), object.class.unbound_instance_methods[getter].inline_proc.call(object.send(getter))] } ]
+        self.verificar_que_no_hayan_atributos_con_el_mismo_nombre(label, label_attributes + inline_attributes, object)
 
-        #[String, TrueClass, FalseClass, Numeric, NilClass].any? {|class_element| object.send(getter).is_a? class_element}
+        inline_attributes = Hash[ inline_attributes.map { |getter| [abstraction(object, getter), object.class.unbound_instance_methods[getter].inline_proc.call(object.send(getter))] } ]
 
-
-        #puts inline_attributes.inspect
-
-        # Hasta acá inline
-
-        self.verificar_que_no_hayan_atributos_con_el_mismo_nombre(label, label_attributes, object)
+        inline_attributes.each do |key, value|
+          raise "Luego de aplicar el bloque de la anotacion Inline sobre el campo del atributo #{key}, el resultado no tiene un tipo representable como un atributo del tag #{label}" unless representable_como_atributo_de_un_tag?(value)
+        end
 
         label_attributes = hash_clave_valor_de(label_attributes, object)
 
-        tag = Tag.with_label_and_attributes(label, label_attributes)
+        tag = Tag.with_label_and_attributes(label, label_attributes.merge(inline_attributes))
 
         self.serializar_arrays(array_attributes, tag, object)
         self.serializar_restantes(remaining_attributes, tag, object)
@@ -135,9 +135,13 @@ class Document
     end
   end
 
+  def self.representable_como_atributo_de_un_tag?(value)
+    [String, TrueClass, FalseClass, Numeric, NilClass].any? {|class_element| value.is_a? class_element}
+  end
+
   def self.separar_labels_de_remaining_attributes(remaining_attributes, object)
     remaining_attributes.partition do |getter|
-      [String, TrueClass, FalseClass, Numeric, NilClass].any? {|class_element| object.send(getter).is_a? class_element}
+      representable_como_atributo_de_un_tag?(object.send(getter))
     end
   end
 
@@ -147,8 +151,8 @@ class Document
     end
   end
 
-  def self.verificar_que_no_hayan_atributos_con_el_mismo_nombre(label, label_attributes, object)
-    duplicates = label_attributes.map { |getter| abstraction(object, getter) }.duplicates
+  def self.verificar_que_no_hayan_atributos_con_el_mismo_nombre(label, attributes, object)
+    duplicates = attributes.map { |getter| abstraction(object, getter) }.duplicates
     raise "La etiqueta #{label} ha quedado con dos o mas atributos con los mismos nombres: #{duplicates.inspect}" unless duplicates.empty?
   end
 
