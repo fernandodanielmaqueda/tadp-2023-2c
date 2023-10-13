@@ -13,11 +13,11 @@ class Class
   end
 
   def instance_methods_associations
-    @method_associations ||= Hash.new
+    @instance_methods_associations ||= Hash.new
   end
 
   def unbound_instance_methods
-    @unbound_methods ||= Hash.new
+    @unbound_instance_methods ||= Hash.new
   end
 
   def apply_class_annotations

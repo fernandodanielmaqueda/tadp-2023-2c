@@ -1,5 +1,4 @@
 class Custom
-  #include Annotation
 
   attr_reader :xml_block
 

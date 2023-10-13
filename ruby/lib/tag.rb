@@ -7,6 +7,11 @@ class Tag
     new(label)
   end
 
+  def self.with_label_and_attributes(label, attributes)
+    tag = self.with_label(label)
+    tag.with_attributes(attributes)
+  end
+
   def initialize(label)
     @label = label
     @attributes = {}
@@ -21,7 +26,16 @@ class Tag
   end
 
   def with_attribute(label, value)
+    raise "La etiqueta #{self.label} ha quedado con dos o mas atributos con el mismo nombre: #{label}" unless @attributes[label].nil?
     @attributes[label] = value
+    self
+  end
+
+  def with_attributes(attributes)
+    attributes.each do |key, value|
+      self.with_attribute(key, value)
+    end unless attributes == nil
+
     self
   end
 
@@ -64,18 +78,6 @@ class Tag
                    else
                      value.to_s
                    end
-  end
-
-  # Agregado propio
-  def self.with_label_and_attributes(label, hash_attributes)
-
-    tag = Tag.with_label(label)
-
-    hash_attributes.each do |key, value|
-      tag.with_attribute(key, value)
-    end unless hash_attributes == nil
-
-    tag
   end
 
 end

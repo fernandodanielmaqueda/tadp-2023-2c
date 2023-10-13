@@ -1,5 +1,3 @@
-Emoticon = "ñ" # ✨
-
 class Object
 
   def method_missing(annotation, *parameters, &block)

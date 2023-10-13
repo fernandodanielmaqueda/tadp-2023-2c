@@ -1,3 +1,5 @@
+Emoticon = "ñ" # ✨
+
 require_relative 'serialize_framework'
 require_relative 'unboundmethod'
 require_relative 'class'
