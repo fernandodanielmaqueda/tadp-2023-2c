@@ -5,14 +5,12 @@ module Eval_XML_Block
 
     tag = Tag.with_label_and_attributes(label, attributes[0])
 
-    if children != nil
-      Document.new(tag, &children)
-    end
+    Document.new(tag, &children) if children
 
-    if @parent.nil?
-      @root = tag
-    else
+    if @parent
       @parent.with_child(tag)
+    else
+      @root = tag
     end
 
   end
@@ -29,17 +27,15 @@ class Document
   def initialize(parent = nil, &xml_block)
     @parent = parent
 
-    if xml_block != nil
+    if xml_block
       result = self.evaluar(&xml_block)
 
-      if result.class != Tag and parent != nil
-        parent.with_child(result)
-      end
+      parent.with_child(result) if result.class != Tag and parent
     end
   end
 
   def xml
-    raise "El documento no tiene un tag raiz" if @root.nil?
+    raise "El documento no tiene un tag raiz" unless @root
 
     @root.xml
   end
@@ -53,10 +49,10 @@ class Document
 
         self.serializar_attributes(tag, attributes, object)
 
-        if parent.nil?
-          self.with_root(tag)
-        else
+        if parent
           parent.with_child(tag)
+        else
+          self.with_root(tag)
         end
 
       else
@@ -64,7 +60,7 @@ class Document
       end
 
     else
-      ""
+      self.with_root(Tag.new)
     end
 
   end
@@ -128,7 +124,7 @@ class Document
       value = object.send(getter)
       inline_proc = object.class.unbound_instance_methods[getter].inline_proc
 
-      if inline_proc != nil
+      if inline_proc
         self.serializar_inline(inline_proc, value, getter, tag, object)
       elsif self.representable_como_atributo_de_un_tag?(value)
         self.serializar_atributo(self.nombre_atributo(object, getter), value, tag)

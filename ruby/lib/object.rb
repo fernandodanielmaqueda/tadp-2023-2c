@@ -27,7 +27,7 @@ class Object
 
   def self.method_added(method_symbol)
     self.instance_methods_associations[method_symbol] = (self.instance_methods_associations[method_symbol] || Array.new) + Object.annotations_buffer
-    Object.annotations_buffer = []
+        Object.annotations_buffer = []
 
     self.unbound_instance_methods[method_symbol] = self.instance_method(method_symbol)
 
@@ -37,9 +37,11 @@ class Object
   private
 
   def self.attr_reader_and_accessor(*symbols)
+
     symbols.each do |symbol|
       self.instance_methods_associations[symbol] = (self.instance_methods_associations[symbol] || Array.new) + Object.annotations_buffer
     end
+
     Object.annotations_buffer = []
   end
 

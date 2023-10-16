@@ -1,10 +1,12 @@
 require_relative 'array'
 
 class Tag
-  attr_reader :label, :attributes, :children
+  #attr_reader :label, :attributes, :children
+  attr_accessor :label, :attributes, :children
 
   def self.with_label(label)
-    new(label)
+    tag = self.new
+    tag.with_label(label)
   end
 
   def self.with_label_and_attributes(label, attributes)
@@ -12,8 +14,7 @@ class Tag
     tag.with_attributes(attributes)
   end
 
-  def initialize(label)
-    @label = label
+  def initialize
     @attributes = {}
     @children = []
   end
@@ -26,8 +27,8 @@ class Tag
   end
 
   def with_attribute(label, value)
-    raise "La etiqueta #{self.label} ha quedado con dos o mas atributos con el mismo nombre: #{label}" unless @attributes[label].nil?
-    @attributes[label] = value
+    raise "La etiqueta #{self.label} ha quedado con dos o mas atributos con el mismo nombre: #{label}" unless @attributes[label.to_s].nil?
+    @attributes[label.to_s] = value
     self
   end
 
@@ -46,11 +47,15 @@ class Tag
 
   # Retorna recursivamente el xml generado.
 
-  def xml(level=0)
-    if children.empty?
-      "#{"\t" * level}<#{label}#{xml_attributes}/>"
+  def xml(level = 0)
+    if @label
+      if children.empty?
+        "#{"\t" * level}<#{label}#{xml_attributes}/>"
+      else
+        "#{"\t" * level}<#{label}#{xml_attributes}>\n#{xml_children(level + 1)}\n#{"\t" * level}</#{label}>"
+      end
     else
-      "#{"\t" * level}<#{label}#{xml_attributes}>\n#{xml_children(level + 1)}\n#{"\t" * level}</#{label}>"
+      ""
     end
   end
 
