@@ -27,8 +27,9 @@ class Tag
   end
 
   def with_attribute(label, value)
-    raise "La etiqueta #{self.label} ha quedado con dos o mas atributos con el mismo nombre: #{label}" unless @attributes[label.to_s].nil?
-    @attributes[label.to_s] = value
+    label = label.to_s
+    raise "La etiqueta #{self.label} ha quedado con dos o mas atributos con el mismo nombre: #{label}" if @attributes[label]
+    @attributes[label] = value
     self
   end
 

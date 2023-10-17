@@ -24,14 +24,15 @@ class Document
     self.new.root = tag
   end
 
-  def initialize(parent = nil, &xml_block)
+  def initialize(parent = nil, *xml_block_args, &xml_block)
     @parent = parent
 
     if xml_block
-      result = self.evaluar(&xml_block)
+      result = self.evaluar_bloque_xml(*xml_block_args, &xml_block)
 
       parent.with_child(result) if result.class != Tag and parent
     end
+
   end
 
   def xml
@@ -40,23 +41,22 @@ class Document
     @root.xml
   end
 
-  def self.serialize(parent = nil, object)
+  def self.serialize(parent = nil, tag_label = nil, object)
 
     if not object.class.ignore?
-      if true # Considerar custom o no
-        tag = Tag.with_label(self.nombre_tag(object))
-        attributes = self.atributos(object)
+      tag = Tag.with_label(tag_label || self.nombre_tag(object))
 
-        self.serializar_attributes(tag, attributes, object)
-
-        if parent
-          parent.with_child(tag)
-        else
-          self.with_root(tag)
-        end
-
+      if not object.class.custom_proc
+        attributes = self.atributos_de(object)
+        self.serializar_campos(tag, attributes, object)
       else
-        #  Custom
+        self.new(tag, object, &object.class.custom_proc)
+      end
+
+      if parent
+        parent.with_child(tag)
+      else
+        self.with_root(tag)
       end
 
     else
@@ -67,9 +67,9 @@ class Document
 
   private
 
-  def evaluar(&xml_block)
+  def evaluar_bloque_xml(*xml_block_args, &xml_block)
     self.singleton_class.include(Eval_XML_Block)
-    result = self.instance_eval(&xml_block)
+    result = self.instance_exec(*xml_block_args, &xml_block)
     self.singleton_class.undef_method(:method_missing)
     result
   end
@@ -79,7 +79,11 @@ class Document
   end
 
   def self.nombre_atributo(object, getter)
-    object.class.unbound_instance_methods[getter].label || getter
+    self.label_atributo(object, getter) || getter
+  end
+
+  def self.label_atributo(object, getter)
+    object.class.unbound_instance_methods[getter].label
   end
 
   def self.etiqueta_de_la_clase_de(object)
@@ -90,7 +94,7 @@ class Document
     object.class.to_s.downcase
   end
 
-  def self.atributos(object)
+  def self.atributos_de(object)
     self.atributos_sin_ignore(self.atributos_con_getter_de(object), object)
   end
 
@@ -118,18 +122,18 @@ class Document
     end
   end
 
-  def self.serializar_attributes(tag, attributes, object)
+  def self.serializar_campos(tag, attributes, object)
 
     attributes.each do |getter|
       value = object.send(getter)
       inline_proc = object.class.unbound_instance_methods[getter].inline_proc
 
       if inline_proc
-        self.serializar_inline(inline_proc, value, getter, tag, object)
+        self.serializar_inline(inline_proc, self.nombre_atributo(object, getter), value, tag)
       elsif self.representable_como_atributo_de_un_tag?(value)
-        self.serializar_atributo(self.nombre_atributo(object, getter), value, tag)
+        self.serializar_atributo(tag, self.nombre_atributo(object, getter), value)
       else
-        self.serializar_tag(value, tag)
+        self.serializar_tag(tag, self.label_atributo(object, getter), value)
       end
     end
 
@@ -139,33 +143,32 @@ class Document
     [String, TrueClass, FalseClass, Numeric, NilClass].any? {|class_element| value.is_a? class_element}
   end
 
-  def self.serializar_inline(inline_proc, value, getter, tag, object)
-    key = nombre_atributo(object, getter)
+  def self.serializar_inline(inline_proc, label, value, tag)
     value = inline_proc.call(value)
-    raise "Luego de aplicar el bloque de la anotacion Inline sobre el campo del atributo #{key}, el resultado no tiene un tipo representable como un atributo del tag #{tag.label}" unless representable_como_atributo_de_un_tag?(value)
-    self.serializar_atributo(key, value, tag)
+    raise "Luego de aplicar el bloque de la anotacion Inline sobre el campo del atributo #{label}, el resultado no tiene un tipo representable como un atributo del tag #{tag.label}" unless representable_como_atributo_de_un_tag?(value)
+    self.serializar_atributo(tag, label, value)
   end
 
-  def self.serializar_atributo(key, value, tag)
-    tag.with_attribute(key, value)
+  def self.serializar_atributo(tag, label, value)
+    tag.with_attribute(label, value)
   end
 
-  def self.serializar_tag(value, tag)
+  def self.serializar_tag(tag, label, value)
     if value.is_a? Array
-      self.serializar_tag_array(value, tag)
+      self.serializar_tag_array(tag, label, value)
     else
-      self.serializar_tag_otro_objeto(value, tag)
+      self.serializar_tag_otro_objeto(tag, label, value)
     end
   end
 
-  def self.serializar_tag_array(array, tag)
+  def self.serializar_tag_array(tag, label, array)
     array.each do |object|
-      self.serialize(tag, object)
+      self.serialize(tag, label, object)
     end
   end
 
-  def self.serializar_tag_otro_objeto(object, tag)
-    self.serialize(tag, object)
+  def self.serializar_tag_otro_objeto(tag, label, object)
+    self.serialize(tag, label, object)
   end
 
 end

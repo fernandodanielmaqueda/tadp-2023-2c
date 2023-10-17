@@ -930,8 +930,12 @@ end
         expected = <<-HEREDOC.chomp
 <alumno nombre="Matias" legajo="123456-7" telefono="1234567890">
 	<situacion>
-		<regular>true</regular>
-		<pendientes>2</pendientes>
+		<regular>
+			true
+		</regular>
+		<pendientes>
+			2
+		</pendientes>
 	</situacion>
 </alumno>
         HEREDOC

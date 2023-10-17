@@ -28,8 +28,8 @@ class Class
 
   def apply_instance_method_annotations(method_symbol)
     (self.instance_methods_associations[method_symbol] || Array.new).each do |annotation|
-        annotation.apply_to(self.unbound_instance_methods[method_symbol])
-      end
+      annotation.apply_to(self.unbound_instance_methods[method_symbol])
+    end
   end
 
 end

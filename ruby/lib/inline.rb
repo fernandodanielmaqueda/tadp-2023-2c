@@ -3,7 +3,7 @@ class Inline
   attr_reader :block
 
   def initialize(&block)
-    raise "La anotacion Inline debe recibir un bloque que espera un solo parametro" if block.nil? or block.arity != 1
+    raise "La anotacion Inline debe recibir un bloque que espera un solo parametro" unless block and block.arity == 1
 
     @block = block
   end
