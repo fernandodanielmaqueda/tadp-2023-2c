@@ -1,147 +1,111 @@
-require_relative 'anexo'
-require_relative 'annotations'
+require_relative 'tag'
 
 module Eval_XML_Block
   def method_missing(label, *attributes, &children)
 
     tag = Tag.with_label_and_attributes(label, attributes[0])
 
-    if children != nil
-      Document.new(tag, &children)
-    end
+    Document.new(tag, &children) if children
 
-    if @parent.nil?
-      @root = tag
-    else
+    if @parent
       @parent.with_child(tag)
+    else
+      @root = tag
     end
 
   end
 end
-ñLabelñ(4)
-ñLabelñ(4)
-ñLabelñ(4)
-ñInlineñ
-ñLabelñ(4)
-class A
-
-end
-
 
 class Document
 
   attr_accessor :root
 
   def self.with_root(tag)
-    self.new.root=(tag)
+    self.new.root = tag
   end
 
-  def initialize(parent = nil, &xml_block)
+  def initialize(parent = nil, *xml_block_args, &xml_block)
     @parent = parent
 
-    if xml_block != nil
-      result = self.evaluar(&xml_block)
+    if xml_block
+      result = self.evaluar_bloque_xml(*xml_block_args, &xml_block)
 
-      if result.class != Tag and parent != nil
-        parent.with_child(result)
-      end
+      parent.with_child(result) if result.class != Tag and parent
     end
+
   end
 
   def xml
-    if @root.nil?
-      raise "El documento no tiene un tag raiz"
-    end
+    raise "El documento no tiene un tag raiz" unless @root
 
     @root.xml
   end
 
+  def self.serialize(parent = nil, tag_label = nil, object)
 
-  def self.serialize(parent = nil, object)
-    label = nombre_en_minusculas_de_la_clase_de(object)
+    if not object.class.ignore?
+      tag = Tag.with_label(tag_label || self.nombre_tag(object))
 
+      if not object.class.custom_proc
+        attributes = self.atributos_de(object)
+        self.serializar_campos(tag, attributes, object)
+      else
+        self.new(tag, object, &object.class.custom_proc)
+      end
 
-    remaining_attributes = atributos_con_getter_de(object)
+      if parent
+        parent.with_child(tag)
+      else
+        self.with_root(tag)
+      end
 
-    label_attributes, remaining_attributes = separar_labels_de_remaining_attributes(remaining_attributes, object)
-    array_attributes, remaining_attributes = separar_arrays_de_remaining_attributes(remaining_attributes, object)
-
-
-    label = self.applyAnnotationsOnLabel(object, label)
-    label_attributes = hash_clave_valor_de(label_attributes, object)
-    label_attributes = self.applyAnnotationsOnLabelAttributes(label_attributes, object)
-
-
-    tag = Tag.with_label_and_attributes(label, label_attributes)
-
-
-    self.serializar_arrays(array_attributes, tag, object)
-    self.serializar_restantes(remaining_attributes, tag, object)
-
-    if parent.nil?
-      self.with_root(tag)
     else
-      parent.with_child(tag)
+      self.with_root(Tag.new)
     end
 
   end
-
 
   private
-  def self.applyAnnotationsOnLabelAttributes(label_attributes, object)
-    annotations_list_attributes = []
-    label_attributes.each do |key, value|
-      annotation = object.class.ownAnnotations.find { |ann| ann.owner.eql?(key) }
-      annotations_list_attributes << annotation if annotation
-    end
-    label_attributes = self.match_and_modify_attributes(annotations_list_attributes, label_attributes)
-    label_attributes
-  end
-  def self.applyAnnotationsOnLabel(object, label)
-    objectAnnotations = self.onlySelectedObjectAnnotations(object)
-    label = self.doForEveryAnnotationAnAction(objectAnnotations, label) unless objectAnnotations.size == 0
-    label
-  end
-  def self.match_and_modify_attributes(annotations, label_attributes)
-    newHash = []
-    temporalList = label_attributes.to_a
-    annotations.each do |annotation|
-      clave = annotation.owner
-      temporalList.each_with_index do |par, index|
-        key,value = par
-        if(key == clave)
-          temporalList.delete_at(index)
-          newHashElement = annotation.doAnnotationActionOnAttribute(key, value)
-          newHash << newHashElement unless newHashElement.nil?
-      end
-    end
-    end
-    newHash += temporalList
-    newHash.to_h
-    end
-  def self.onlySelectedObjectAnnotations(object)
-    object.class.ownAnnotations.filter do |annotation|
-      annotation.ownerIsClassOf?(object)
-    end
-  end
-  def self.doForEveryAnnotationAnAction(annotations, label)
-    label = annotations.inject(label) { |label,annotation |annotation.doAnnotationAction(label)  }
-    return label
-  end
 
-  def evaluar(&xml_block)
+  def evaluar_bloque_xml(*xml_block_args, &xml_block)
     self.singleton_class.include(Eval_XML_Block)
-    result = self.instance_eval(&xml_block)
+    result = self.instance_exec(*xml_block_args, &xml_block)
     self.singleton_class.undef_method(:method_missing)
     result
+  end
+
+  def self.nombre_tag(object)
+    self.etiqueta_de_la_clase_de(object) || self.nombre_en_minusculas_de_la_clase_de(object)
+  end
+
+  def self.nombre_atributo(object, getter)
+    self.label_atributo(object, getter) || getter
+  end
+
+  def self.label_atributo(object, getter)
+    object.class.unbound_instance_methods[getter].label
+  end
+
+  def self.etiqueta_de_la_clase_de(object)
+    object.class.label
   end
 
   def self.nombre_en_minusculas_de_la_clase_de(object)
     object.class.to_s.downcase
   end
 
+  def self.atributos_de(object)
+    self.atributos_sin_ignore(self.atributos_con_getter_de(object), object)
+  end
+
+  def self.atributos_sin_ignore(attributes, object)
+    attributes.filter do |getter|
+      not object.class.unbound_instance_methods[getter].ignore?
+    end
+  end
+
   def self.atributos_con_getter_de(object)
-    con_getter(simbolos_de_atributos_convertidos_a_simbolos_de_metodos_de(object), object)
+    self.simbolos_de_metodos_con_getter(self.simbolos_de_atributos_convertidos_a_simbolos_de_metodos_de(object), object)
   end
 
   def self.simbolos_de_atributos_convertidos_a_simbolos_de_metodos_de(object)
@@ -150,7 +114,7 @@ class Document
     end
   end
 
-  def self.con_getter(method_symbols, object)
+  def self.simbolos_de_metodos_con_getter(method_symbols, object)
     method_symbols.filter do |method_symbol|
       object.methods.any? do |object_method|
         (method_symbol == object_method) and (object.method(object_method).arity == 0)
@@ -158,94 +122,53 @@ class Document
     end
   end
 
-  def self.separar_labels_de_remaining_attributes(remaining_attributes, object)
-    remaining_attributes.partition do |getter|
-      [String, TrueClass, FalseClass, Numeric, NilClass].any? {|class_element| object.send(getter).is_a? class_element}
-    end
-  end
+  def self.serializar_campos(tag, attributes, object)
 
-  def self.separar_arrays_de_remaining_attributes(remaining_attributes, object)
-    remaining_attributes.partition do |getter|
-      object.send(getter).is_a? Array
-    end
-  end
+    attributes.each do |getter|
+      value = object.send(getter)
+      inline_proc = object.class.unbound_instance_methods[getter].inline_proc
 
-  def self.hash_clave_valor_de(label_attributes, object)
-    Hash[ label_attributes.map { |getter| [getter, object.send(getter)] } ]
-  end
-
-  def self.serializar_arrays(array_attributes, tag, object)
-    array_attributes.each do |symbol|
-      object.send(symbol).each do |element|
-        self.serialize(tag, element)
+      if inline_proc
+        self.serializar_inline(inline_proc, self.nombre_atributo(object, getter), value, tag)
+      elsif self.representable_como_atributo_de_un_tag?(value)
+        self.serializar_atributo(tag, self.nombre_atributo(object, getter), value)
+      else
+        self.serializar_tag(tag, self.label_atributo(object, getter), value)
       end
-    end unless array_attributes == nil
+    end
+
   end
 
-  def self.serializar_restantes(remaining_attributes, tag, object)
-    remaining_attributes.each do |symbol|
-      self.serialize(tag, object.send(symbol))
-    end unless remaining_attributes == nil
+  def self.representable_como_atributo_de_un_tag?(value)
+    [String, TrueClass, FalseClass, Numeric, NilClass].any? {|class_element| value.is_a? class_element}
   end
 
-end
-
-ñLabelñ("tester")
-class TestA
-  ñIgnoreñ
-  attr_reader :testing, :what
-  ñLabelñ('boenas')
-  attr_reader :different
-  ñLabelñ(5)
-  attr_reader :number
-  #
-  def initialize
-    @testing=10
-    @what='asdfs'
-    @different='hola'
-    @number='hola'
+  def self.serializar_inline(inline_proc, label, value, tag)
+    value = inline_proc.call(value)
+    raise "Luego de aplicar el bloque de la anotacion Inline sobre el campo del atributo #{label}, el resultado no tiene un tipo representable como un atributo del tag #{tag.label}" unless representable_como_atributo_de_un_tag?(value)
+    self.serializar_atributo(tag, label, value)
   end
-  # def tested
-  #
-  # end
-end
 
-ñIgnoreñ
-class TestB
-end
-Document.serialize(TestA.new).xml
-Document.serialize(TestB.new).xml
-
-ñLabelñ("TEST1")
-class Estado
-  ñLabelñ("TEST2")
-  attr_reader :es_regular
-  ñIgnoreñ
-  attr_reader :materias_aprobadas
-  attr_reader :finales_rendidos
-
-  def initialize(finales_rendidos, materias_aprobadas, es_regular)
-    @finales_rendidos = finales_rendidos
-    @materias_aprobadas = materias_aprobadas
-    @es_regular = es_regular
+  def self.serializar_atributo(tag, label, value)
+    tag.with_attribute(label, value)
   end
-end
 
-ñLabelñ("TEST4")
-class TestC
-  ñLabelñ("TEST5")
-  attr_reader :nombre
-  ñIgnoreñ
-  attr_reader :legajo
-  ñLabelñ("Hola")
-  attr_reader :estado
-  def initialize(nombre, legajo, telefono, estado)
-    @nombre = nombre
-    @legajo = legajo
-    @telefono = telefono
-    @estado = estado
+  def self.serializar_tag(tag, label, value)
+    if value.is_a? Array
+      self.serializar_tag_array(tag, label, value)
+    else
+      self.serializar_tag_otro_objeto(tag, label, value)
+    end
+  end
+
+  def self.serializar_tag_array(tag, label, array)
+    array.each do |object|
+      self.serialize(tag, label, object)
+    end
+  end
+
+  def self.serializar_tag_otro_objeto(tag, label, object)
+    self.serialize(tag, label, object)
   end
 
 end
-unTest =TestC.new("Jorge",4325662,3242652,Estado.new(3,6,true))
-Document.serialize(unTest)

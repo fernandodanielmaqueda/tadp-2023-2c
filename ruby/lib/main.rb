@@ -1,21 +1,12 @@
+Emoticon = '✨'
+
+require_relative 'serialize_framework'
+require_relative 'class'
+require_relative 'object'
+require_relative 'unboundmethod'
+
 require_relative 'document'
-
-ñLabelñ("tester")
-class Test
-  ñIgnoreñ
-  attr_accessor :testing, :what
-  ñLabelñ('boenas')
-  attr_accessor :different
-  ñLabelñ(5)
-  attr_accessor :number
-
-  def initialize
-    @testing=10
-    @what='asdfs'
-    @different='hola'
-    @number='hola'
-  end
-  def tested
-
-  end
-end
+require_relative 'label'
+require_relative 'ignore'
+require_relative 'inline'
+require_relative 'custom'
