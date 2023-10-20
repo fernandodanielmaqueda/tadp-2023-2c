@@ -1,8 +1,7 @@
 require_relative 'array'
 
 class Tag
-  #attr_reader :label, :attributes, :children
-  attr_accessor :label, :attributes, :children
+  attr_reader :label, :attributes, :children
 
   def self.with_label(label)
     tag = self.new

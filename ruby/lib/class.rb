@@ -2,11 +2,7 @@ class Class
 
   include Class_Serialize_Framework
 
-  attr_writer :annotations_buffer, :class_associations, :instance_methods_associations, :unbound_instance_methods
-
-  def annotations_buffer
-    @annotations_buffer ||= Array.new
-  end
+  attr_writer :class_associations, :instance_methods_associations, :unbound_instance_methods
 
   def class_associations
     @class_associations ||= Array.new
@@ -17,7 +13,7 @@ class Class
   end
 
   def unbound_instance_methods
-    @unbound_instance_methods ||= Hash.new
+    @unbound_instance_methods ||= Hash.new { |hash, key| self.instance_method(key) }
   end
 
   def apply_class_annotations

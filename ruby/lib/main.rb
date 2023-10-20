@@ -1,4 +1,5 @@
 Emoticon = '✨'
+$annotations_buffer = Array.new
 
 require_relative 'serialize_framework'
 require_relative 'class'

@@ -1,24 +1,10 @@
 require_relative 'tag'
-
-module Eval_XML_Block
-  def method_missing(label, *attributes, &children)
-
-    tag = Tag.with_label_and_attributes(label, attributes[0])
-
-    Document.new(tag, &children) if children
-
-    if @parent
-      @parent.with_child(tag)
-    else
-      @root = tag
-    end
-
-  end
-end
+require_relative 'eval_xml_block'
 
 class Document
 
   attr_accessor :root
+  attr_reader :parent
 
   def self.with_root(tag)
     self.new.root = tag
@@ -27,12 +13,7 @@ class Document
   def initialize(parent = nil, *xml_block_args, &xml_block)
     @parent = parent
 
-    if xml_block
-      result = self.evaluar_bloque_xml(*xml_block_args, &xml_block)
-
-      parent.with_child(result) if result.class != Tag and parent
-    end
-
+    Eval_XML_Block.new(self, *xml_block_args, &xml_block) if xml_block
   end
 
   def xml
@@ -66,13 +47,6 @@ class Document
   end
 
   private
-
-  def evaluar_bloque_xml(*xml_block_args, &xml_block)
-    self.singleton_class.include(Eval_XML_Block)
-    result = self.instance_exec(*xml_block_args, &xml_block)
-    self.singleton_class.undef_method(:method_missing)
-    result
-  end
 
   def self.nombre_tag(object)
     self.etiqueta_de_la_clase_de(object) || self.nombre_en_minusculas_de_la_clase_de(object)

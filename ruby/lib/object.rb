@@ -5,12 +5,12 @@ class Object
 
     raise "La clase #{$1} no existe" unless ObjectSpace.const_defined?($1)
 
-    Object.annotations_buffer << ObjectSpace.const_get($1).new(*parameters, &block)
+    $annotations_buffer << ObjectSpace.const_get($1).new(*parameters, &block)
   end
 
   def self.inherited(created_subclass)
-    created_subclass.class_associations = @annotations_buffer
-    @annotations_buffer = []
+    created_subclass.class_associations = $annotations_buffer
+    $annotations_buffer = []
 
     created_subclass.apply_class_annotations
   end
@@ -27,7 +27,7 @@ class Object
 
   def self.method_added(method_symbol)
     self.asociar_instance_method_con_annotations(method_symbol)
-    Object.annotations_buffer = []
+    $annotations_buffer = []
 
     self.unbound_instance_methods[method_symbol] = self.instance_method(method_symbol)
 
@@ -45,11 +45,11 @@ class Object
       self.asociar_instance_method_con_annotations(symbol)
     end
 
-    Object.annotations_buffer = []
+    $annotations_buffer = []
   end
 
   def self.asociar_instance_method_con_annotations(method_symbol)
-    self.instance_methods_associations[method_symbol] = (self.instance_methods_associations[method_symbol] || Array.new) + Object.annotations_buffer
+    self.instance_methods_associations[method_symbol] = (self.instance_methods_associations[method_symbol] || Array.new) + $annotations_buffer
   end
 
 end
