@@ -29,6 +29,7 @@ class Document
 
       if not object.class.custom_proc
         attributes = self.atributos_de(object)
+        self.serializar_campos_extra(tag, object)
         self.serializar_campos(tag, attributes, object)
       else
         self.new(tag, object, &object.class.custom_proc)
@@ -93,6 +94,19 @@ class Document
       object.methods.any? do |object_method|
         (method_symbol == object_method) and (object.method(object_method).arity == 0)
       end
+    end
+  end
+
+  def self.serializar_campos_extra(tag, object)
+    object.class.extra_symbols.each do |symbol, block|
+      value = object.instance_exec(&block)
+
+      if self.representable_como_atributo_de_un_tag?(value)
+        self.serializar_atributo(tag, symbol, value)
+      else
+        self.serializar_tag(tag, symbol, value)
+      end
+
     end
   end
 
