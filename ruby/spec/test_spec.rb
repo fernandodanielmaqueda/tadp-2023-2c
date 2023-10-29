@@ -983,4 +983,107 @@ end
 
   end
 
+  describe "#{Emoticon}Extra#{Emoticon}" do
+
+    context "Instanciación" do
+
+      it "La constante de la clase Extra debería existir" do
+        expect(ObjectSpace.const_defined?("Extra")).to be(true)
+      end
+
+      it "Initialize debería ser de aridad 1" do
+        expect(Extra.instance_method(:initialize).arity).to eq(1)
+      end
+
+      it "El primer parámetro de initialize (el simbolo) debería ser requerido" do
+        expect(Extra.instance_method(:initialize).parameters[0][0]).to be(:req)
+      end
+
+      it "El segundo parámetro de initialize debería ser un bloque" do
+        expect(Extra.instance_method(:initialize).parameters[1][0]).to be(:block)
+      end
+
+      it "Si no se recibe un bloque se lanza una excepción acorde" do
+        expect{Extra.new(:simbolo)}.to raise_error(RuntimeError, "La anotacion Extra debe recibir un bloque que no espera parametros")
+      end
+
+      it "Si se recibe un bloque de aridad = 0 no se lanza ninguna excepción" do
+        expect{Extra.new(:simbolo) {}}.to_not raise_error
+      end
+
+      it "Si se recibe un bloque de aridad > 1 se lanza una excepción acorde" do
+        expect{Extra.new(:simbolo) {|campo|}}.to raise_error(RuntimeError, "La anotacion Extra debe recibir un bloque que no espera parametros")
+      end
+
+    end
+
+    context "Serialización de ejemplo" do
+
+      it("El XML generado es correcto") do
+
+        eval <<-HEREDOC.chomp
+
+          #{Emoticon}Extra#{Emoticon}(:global) { (@fuerza + @velocidad) / 2}
+          class Guerrero
+
+            attr_accessor :salud
+        
+            def initialize(fuerza, velocidad, salud)
+              @fuerza = fuerza
+              @velocidad = velocidad
+              @salud = salud
+            end
+
+          end
+
+        HEREDOC
+
+        serializacion = Document.serialize(Guerrero.new(50, 70, 100))
+
+        expected = <<-HEREDOC.chomp
+<guerrero global=60 salud=100/>
+        HEREDOC
+
+        expect(serializacion.xml).to eq expected
+
+        Object.send(:remove_const, :Guerrero)
+      end
+
+    end
+
+    context "Excepciones" do
+
+      it "Sólo se debe permitir utilizar la annotation Extra en clases" do
+
+        actual = <<-HEREDOC.chomp
+
+          class Persona
+      
+            attr_reader :nombre, :dni, :telefono
+      
+            def initialize(nombre, dni, telefono)
+              @nombre = nombre
+              @dni = dni
+              @telefono = telefono
+            end
+      
+            #{Emoticon}Extra#{Emoticon}(:simbolo) {}
+            def nombre
+              @nombre
+            end
+
+          end
+  
+        HEREDOC
+
+        expect{eval actual}.to raise_error(RuntimeError, "La anotacion Extra solo puede ser utilizada en clases; no en: nombre")
+
+        Object.send(:remove_const, :Persona)
+
+      end
+
+    end
+
+  end
+
 end

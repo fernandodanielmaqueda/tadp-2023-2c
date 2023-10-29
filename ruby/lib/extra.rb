@@ -1,11 +1,9 @@
 class Extra
 
   def initialize(symbol, &block)
-
-    raise "La anotacion Extra debe recibir un simbolo" unless symbol.is_a? Symbol
     raise "La anotacion Extra debe recibir un bloque que no espera parametros" unless block and block.arity == 0
 
-    @symbol = symbol
+    @symbol = symbol.to_sym
     @block = block
   end
 
