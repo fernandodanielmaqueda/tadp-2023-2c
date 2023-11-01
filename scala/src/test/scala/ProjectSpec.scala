@@ -13,3 +13,13 @@ class ProjectSpec extends AnyFreeSpec {
   }
 
 }
+
+// https://docs.scala-lang.org/getting-started/intellij-track/testing-scala-in-intellij-with-scalatest.html
+/*
+import org.scalatest.funsuite.AnyFunSuite
+
+  class PruebaTest extends AnyFunSuite {
+  test("Prueba.materia") {
+    assert(Prueba.materia == "tadp")
+  }
+}*/
