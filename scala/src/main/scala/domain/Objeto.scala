@@ -1,32 +1,23 @@
 package domain
 
+import domain.festival.{Daño, Hambre}
+import domain.positive.PositiveDouble
+
 abstract class Objeto {
   def modificador(): Any
 }
 
-object SistemaDeVuelo extends Objeto {
-  def modificador(): None.type = {
-    None
-  }
+object SistemaDeVuelo extends Objeto { override def modificador(): None.type = None }
+
+class Comestible(modificadorDeHambre: Hambre) extends Objeto {
+  def modificador(): Hambre = modificadorDeHambre
 }
 
-class Comestible extends Object {
-  var porcentajeDeSatisfaccion: Double = 0
-
-  def modificador(): Double = {
-    porcentajeDeSatisfaccion
-  }
+class Arma(modificadorDeDaño: Daño) extends Objeto {
+  def modificador(): Daño = modificadorDeDaño
 }
 
-class Arma extends Objeto {
-  var aumentoDeDaño: Double = 0;
+object Hacha extends Arma(30)
 
-  def modificador(): Double = {
-    aumentoDeDaño;
-  }
-}
-
-val Hacha: Arma = new Arma { aumentoDeDaño = 30 }
-
-val Maza: Arma = new Arma { aumentoDeDaño = 100 }
+object Maza extends Arma(100)
 

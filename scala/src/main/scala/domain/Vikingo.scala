@@ -1,50 +1,58 @@
 package domain
 
+import domain.festival.{Barbarosidad, Daño, Hambre, kg, km_h}
 
-class Vikingo implements PosibleCompetidor {
-  var peso: Double = 0;
-  var velocidad: Double = 0;
-  var barbarosidad: Double = 0;
-  var hambre: Double = 0;
-  var objeto: Objeto = SistemaDeVuelo;
 
-  def pescaMaxima(): Double = {
-    this.peso * 0.5 + this.barbarosidad * 2;
+class Vikingo(val peso: kg, val velocidad: km_h, val barbarosidad: Barbarosidad, var hambre: Hambre, val objeto: Objeto) extends PosibleCompetidor {
+  require(Range.inclusive(0, 100).contains(hambre), "El nivelDeHambre debe ser un porcentaje valido")
+  def pescaMaxima(): Double = peso * 0.5 + this.barbarosidad * 2
+
+  def daño(): Daño = {
+    objeto match {
+      case arma: Arma => this.barbarosidad + arma.modificador()
+      case _ => this.barbarosidad
+    }
   }
 
-  def daño(): Double = {
-    if (objeto.isInstanceOf[Arma])
-      this.barbarosidad + objeto.modificador();
-    else
-      this.barbarosidad
+  def participarEnPosta(porcentajeDeHambre: Hambre): Unit = {
+    require(porcentajeDeHambre >= 0, "El nivel Debe ser positivo")
+    hambre += porcentajeDeHambre
+    if (hambre >= 100)
+      hambre = 100
   }
 
-  def participarEnPosta(porcentajeDeHambre: Double): Unit = {
-    this.hambre += this.hambre * porcentajeDeHambre;
+  def montar(dragon: Dragon): PosibleCompetidor = {
+    try {
+      new Jinete(this, dragon)
+    }
+    catch {
+      case error: Exception => this
+    }
+    ???
+  }
+
+  def porcentajeDeHambre: String = s"${hambre}%"
+
+  def significadoPorcentajeDeHambre: String = {
+    if (porcentajeDeHambre == "0%") "panza llena, corazón contento"
+    else throw new MyCustomException("El porcentajeDeHambre no tiene un significado asociado");
   }
 }
 
-object Posta {
-  def pesca(vikingos: List[Vikingo]): Vikingo = {
-    vikingos.foreach(vikingo => vikingo.participarEnPosta(0.05))
-    vikingos.maxBy(vikingo => vikingo.pescaMaxima())
-  }
-  def combate(vikingos: List[Vikingo]): Vikingo = {
-    vikingos.foreach(vikingo => vikingo.participarEnPosta(0.10))
-    vikingos.maxBy(vikingo => vikingo.daño())
-  }
-  def carrera(vikingos: List[Vikingo], kilometros: Int): Vikingo = {
-    vikingos.foreach(vikingo => vikingo.participarEnPosta(0.01 * kilometros))
-    vikingos.maxBy(vikingo => vikingo.velocidad)
-  }
+object Hipo extends Vikingo(70, 8, 3, 0, SistemaDeVuelo)
 
-}
+object Astrid extends Vikingo(70, 10, 2, 0, Hacha)
 
-object Patapez extends Vikingo {
-  override def participarEnPosta(porcentajeDeHambre: Double): Unit = {
-    super.participarEnPosta(porcentajeDeHambre)
-    if (objeto.isInstanceOf[Comestible]) {
-      this.hambre -= objeto.modificador()
+object Patán extends Vikingo(80, 6, 3, 0, Maza)
+
+object Patapez extends Vikingo(100, 5, 1, 0, new Comestible(5)) {
+  override def participarEnPosta(porcentajeDeHambre: Hambre): Unit = {
+    val modificadorDeHambre: Int = 2
+    super.participarEnPosta(porcentajeDeHambre * modificadorDeHambre)
+    objeto match {
+      case comestible: Comestible => hambre -= comestible.modificador()
     }
   }
 }
+
+//val ListaVikingos = List[Vikingo](Hipo, Astrid, Patán, Patapez)

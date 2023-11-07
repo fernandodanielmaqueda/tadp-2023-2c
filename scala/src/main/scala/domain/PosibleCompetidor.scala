@@ -1,11 +1,15 @@
 package domain
 
+import domain.festival.{Daño, Hambre, km_h}
+
 trait PosibleCompetidor {
+
+  def participarEnPosta(porcentajeDeHambre: Hambre): Unit
 
   def pescaMaxima(): Double
 
-  def daño(): Double
+  def daño(): Daño
 
-  def velocidad(): Double
+  def velocidad(): km_h
 
 }

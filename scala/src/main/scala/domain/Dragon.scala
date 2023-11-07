@@ -1,90 +1,56 @@
 package domain
 
-abstract class Dragon {
+import domain.festival.{Barbarosidad, Daño, kg, km_h, velocidadBaseNormal}
 
-  val velocidadBase: Double = 60
+abstract class Dragon(val peso: kg, val condicionParaMontar: CondicionParaMontar) {
 
-  val porcentajeDePesoSoportable: Double = 0.2
+  private val porcentajeDePesoSoportable: Double = 0.2
 
-  var peso: Double = 0
+  def velocidad(): km_h = velocidadBaseNormal - peso
 
-  var condicionParaMontar: CondicionParaMontar = CondicionBase
+  def daño(): Daño
 
-  def velocidad(): Double = velocidadBase - peso
+  def montablePor(vikingo: Vikingo): Boolean = condicionPeso(vikingo) && condicionParaMontar.call(vikingo)
 
-  def daño(): Double
+  def pesoSoportable(): kg = peso * porcentajeDePesoSoportable
 
-  def montablePor(vikingo: Vikingo): Boolean =
-    vikingo.peso <= this.peso * porcentajeDePesoSoportable &&
-      condicionParaMontar.call(vikingo)
+  private def condicionPeso(vikingo: Vikingo): Boolean = vikingo.peso <= pesoSoportable()
 
 }
 
-class FuriaNocturna extends Dragon {
+class FuriaNocturna(peso: kg, condicionParaMontar: CondicionParaMontar, val dañoBase: Daño) extends Dragon(peso, condicionParaMontar) {
 
-  var dañoBase: Double = 0
+  private val modificadorDeVelocidad: Int = 3
 
-  val porcentajeDeVelocidad = 3
+  override def velocidad(): km_h = super.velocidad() * modificadorDeVelocidad
 
-  override def velocidad(): Double = super.velocidad() * porcentajeDeVelocidad
-
-  override def daño(): Double = dañoBase
+  override def daño(): Daño = dañoBase
 
 }
 
-class NadderMortifero extends Dragon {
+object Chimuelo extends FuriaNocturna(300, new CondicionObjetoEspecifico(SistemaDeVuelo), 100)
 
-  val dañoBase: Double = 150
+class NadderMortifero(peso: kg, condicionParaMontar: CondicionParaMontar) extends Dragon(peso, condicionParaMontar) {
 
-  override def daño(): Double = dañoBase
+  private val dañoBase: Daño = 150
 
-  override def montablePor(vikingo: Vikingo): Boolean = {
-    super.montablePor(vikingo) &&
-      vikingo.daño() < daño()
-  }
+  override def daño(): Daño = dañoBase
 
-}
-
-class Gronckle extends Dragon {
-
-  val porcentajeDeVelocidad: Double = 0.5
-
-  val porcentajeDeDaño: Double = 5
-
-  var pesoSoportableMaximo: Double = 0;
-
-  override def velocidad(): Double = super.velocidad() * porcentajeDeVelocidad
-
-  override def daño(): Double = peso * porcentajeDeDaño
-
-  override def montablePor(vikingo: Vikingo): Boolean = {
-    super.montablePor(vikingo) &&
-      vikingo.peso < pesoSoportableMaximo
-  }
+  override def montablePor(vikingo: Vikingo): Boolean = super.montablePor(vikingo) && vikingo.daño() < daño()
 
 }
 
-abstract class CondicionParaMontar {
-  def call(vikingo: Vikingo): Boolean
-}
+class Gronckle(peso: kg, condicionParaMontar: CondicionParaMontar, pesoSoportableMaximo: kg) extends Dragon(peso, condicionParaMontar) {
 
-object CondicionBase extends CondicionParaMontar {
-  override def call(vikingo: Vikingo): Boolean = true
-}
+  private val modificadorDeVelocidad: Double = 0.5
 
-class CondicionVikingoBarbaro extends CondicionParaMontar {
+  private val modificadorDeDaño: Int = 5
 
-  var barbarosidadMinima: Double = 0
+  override def velocidad(): km_h = super.velocidad() * modificadorDeVelocidad
 
-  override def call(vikingo: Vikingo): Boolean = vikingo.barbarosidad >= barbarosidadMinima
+  override def daño(): Daño = peso * modificadorDeDaño
 
-}
-
-class CondicionObjetoEspecifico extends CondicionParaMontar {
-
-  var objetoDeseado: Objeto = SistemaDeVuelo
-
-  override def call(vikingo: Vikingo): Boolean = vikingo.objeto == objetoDeseado
+  override def montablePor(vikingo: Vikingo): Boolean = super.montablePor(vikingo) && vikingo.peso < pesoSoportableMaximo
 
 }
 
