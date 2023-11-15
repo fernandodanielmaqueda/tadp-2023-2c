@@ -10,3 +10,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.15" % "test",
   "org.scalactic" %% "scalactic" % "3.2.15"
 )
+
+console / initialCommands := """import festival._"""
+
+consoleQuick / initialCommands := """println("Hello from consoleQuick")"""
