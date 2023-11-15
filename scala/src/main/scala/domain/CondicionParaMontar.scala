@@ -21,4 +21,3 @@ class CondicionObjetoEspecifico(val objetoDeseado: Objeto) extends CondicionPara
   override def call(vikingo: Vikingo): Boolean = vikingo.objeto == objetoDeseado
 
 }
-

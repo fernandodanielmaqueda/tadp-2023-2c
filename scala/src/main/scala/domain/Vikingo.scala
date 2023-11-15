@@ -2,6 +2,8 @@ package domain
 
 import domain.festival.{Barbarosidad, Daño, Hambre, kg, km_h}
 
+import scala.util.{Failure, Success, Try}
+
 
 class Vikingo(val peso: kg, val velocidad: km_h, val barbarosidad: Barbarosidad, var hambre: Hambre, val objeto: Objeto) extends PosibleCompetidor {
   require(Range.inclusive(0, 100).contains(hambre), "El nivelDeHambre debe ser un porcentaje valido")
@@ -21,15 +23,15 @@ class Vikingo(val peso: kg, val velocidad: km_h, val barbarosidad: Barbarosidad,
       hambre = 100
   }
 
-  def montar(dragon: Dragon): PosibleCompetidor = {
-    try {
-      new Jinete(this, dragon)
+  override def tieneObjeto(_objeto: Objeto): Boolean = objeto == _objeto
+
+  def intentarMontar(dragon: Dragon): Try[Jinete] = Try(new Jinete(this, dragon))
+
+  def montar(dragon: Dragon): Jinete =
+    intentarMontar(dragon) match {
+      case Success(jinete) => jinete
+      case Failure(exception) => throw new Exception(exception)
     }
-    catch {
-      case error: Exception => this
-    }
-    ???
-  }
 
   def porcentajeDeHambre: String = s"${hambre}%"
 
@@ -37,6 +39,7 @@ class Vikingo(val peso: kg, val velocidad: km_h, val barbarosidad: Barbarosidad,
     if (porcentajeDeHambre == "0%") "panza llena, corazón contento"
     else throw new MyCustomException("El porcentajeDeHambre no tiene un significado asociado");
   }
+
 }
 
 object Hipo extends Vikingo(70, 8, 3, 0, SistemaDeVuelo)
