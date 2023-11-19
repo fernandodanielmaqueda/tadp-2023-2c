@@ -4,30 +4,24 @@ abstract class Item {
 
   def daño: Daño = 0
 
-  def efecto(): Unit = {}
+  def utilizarSobre(unVikingo: Vikingo): Vikingo = unVikingo
 
 }
 
-class SistemaDeVuelo extends Item {
+object SistemaDeVuelo extends Item
 
-}
-
-class Arma(_daño: Daño) extends Item {
+case class Arma(_daño: Daño) extends Item {
 
   override def daño: Daño = _daño
 
 }
 
-class Hacha(_daño: Daño) extends Arma(_daño) {
+object Hacha extends Arma(10)
 
-}
+object Maza extends Arma(20)
 
-class Maza(_daño: Daño) extends Arma(_daño) {
+case class Comestible(decrementoDeHambre: Hambre) extends Item {
 
-}
-
-class Comestible(decrementoDeHambre: Hambre) extends Item {
-
-
+  override def utilizarSobre(unVikingo: Vikingo): Vikingo = unVikingo.decrementarNivelDeHambre(decrementoDeHambre)
 
 }
