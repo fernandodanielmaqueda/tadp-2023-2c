@@ -29,7 +29,8 @@ trait Competidor {
   def puedeCompetirEn(unaPosta: Posta): Boolean = nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta) < 100
   def competirEn(unaPosta: Posta): T = {
     if (!puedeCompetirEn(unaPosta)) throw new MyCustomException("El competidor no puede competir en la posta")
-    item.aplicarSobre(this.darHambrePorParticiparEn(unaPosta))
+    //item.aplicarSobre(this.darHambrePorParticiparEn(unaPosta))
+    ???
   }
 
   def maximoDeKgDePescadoQuePuedeCargar: kg

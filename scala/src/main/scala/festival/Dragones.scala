@@ -12,8 +12,8 @@ abstract class Dragon(val peso: kg) {
 
   def puedeRemontarVueloCon(unVikingo: Vikingo): Boolean = unVikingo.peso <= hastaCuantoPuedeCargar
 
-  def restriccionesDeMonturaBasicas: List[RequisitoDeMontura] = List(RequisitoDeMonturaBasico)
-  def restriccionesDeMonturaExtras: List[RequisitoDeMontura] = List()
+  var restriccionesDeMonturaBasicas = List[RequisitoDeMontura](RequisitoDeMonturaBasico)
+  var restriccionesDeMonturaExtras = List[RequisitoDeMontura]()
 
   def puedeMontar(unVikingo: Vikingo): Boolean = (restriccionesDeMonturaBasicas ::: restriccionesDeMonturaExtras).forall(_.seCumplePor(unVikingo, this))
 
@@ -32,7 +32,7 @@ class NadderMortifero(_peso: kg) extends Dragon(_peso) {
 
   def dañoQueProduce: Daño = 150
 
-  override def restriccionesDeMonturaBasicas: List[RequisitoDeMontura] = super.restriccionesDeMonturaBasicas :+ RequisitoDeMonturaNoSuperarDañoPropio
+  restriccionesDeMonturaBasicas :+= RequisitoDeMonturaNoSuperarDañoPropio
 
 }
 
@@ -44,10 +44,12 @@ class Gronckle(_peso: kg, limiteDePesoParaVikingo: kg) extends Dragon(_peso) {
 
   def dañoQueProduce: Daño = 5 * _peso
 
-  override def restriccionesDeMonturaBasicas: List[RequisitoDeMontura] = super.restriccionesDeMonturaBasicas :+ new RequisitoDeMonturaNoSuperarPesoDeterminado(limiteDePesoParaVikingo)
+  restriccionesDeMonturaBasicas :+= new RequisitoDeMonturaNoSuperarPesoDeterminado(limiteDePesoParaVikingo)
 
 }
 
 object Chimuelo extends FuriaNocturna(200, 100) {
+
+  restriccionesDeMonturaExtras :+= new RequisitoDeMonturaTenerItem(SistemaDeVuelo)
 
 }
