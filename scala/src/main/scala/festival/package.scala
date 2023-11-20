@@ -9,6 +9,6 @@ package object festival {
 
   val velocidadBaseNormal = 60
 
-  class MyCustomException(mensaje: String) extends Exception(mensaje)
+  class MyCustomException(descripcion: String) extends Exception(descripcion)
 
 }

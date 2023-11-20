@@ -2,16 +2,16 @@ package festival
 
 abstract class Posta {
 
-  def participar(competidores: List[Competidor]): List[Competidor] = {
+  def participar(anotados: List[Competidor]): List[Competidor] = {
     ordenarPorMejor(
-      competidores.filter(_.puedeCompetirEn(this))
-      .filter(competidor => cumpleCriteriosDeAdmision(competidor))
-    )
-    .map(competidor => competidor.competirEn(this)
+      for (contendiente <- anotados if cumpleCriteriosDeAdmision(contendiente) && contendiente.puedeCompetirEn(this))
+      yield contendiente.competirEn(this)
     )
   }
 
-  def ordenarPorMejor(competidores: List[Competidor]): List[Competidor]
+  def elPrimeroEsMejorQueElSegundo: (Competidor, Competidor) => Boolean
+
+  def ordenarPorMejor(competidores: List[Competidor]): List[Competidor] = competidores.sortWith(elPrimeroEsMejorQueElSegundo)
 
   def incremento: Hambre
 
@@ -21,8 +21,9 @@ abstract class Posta {
 
 class Pesca(pesoMinimoQueDebeLevantar: kg = 0) extends Posta
 {
+  require(pesoMinimoQueDebeLevantar >= 0, "El pesoMinimoQueDebeLevantar no puede ser negativo")
 
-  def ordenarPorMejor(competidores: List[Competidor]): List[Competidor] = competidores.sortBy(_.maximoDeKgDePescadoQuePuedeCargar)
+  def elPrimeroEsMejorQueElSegundo: (Competidor, Competidor) => Boolean = _.maximoDeKgDePescadoQuePuedeCargar > _.maximoDeKgDePescadoQuePuedeCargar
 
   def incremento: Hambre = 5
 
@@ -32,19 +33,21 @@ class Pesca(pesoMinimoQueDebeLevantar: kg = 0) extends Posta
 
 class Combate(gradoDeBarbaridadMinimo: Barbarosidad) extends Posta
 {
+  require(gradoDeBarbaridadMinimo >= 0, "El gradoDeBarbaridadMinimo no puede ser negativo")
 
-  def ordenarPorMejor(competidores: List[Competidor]): List[Competidor] = competidores.sortBy(_.daño)
+  def elPrimeroEsMejorQueElSegundo: (Competidor, Competidor) => Boolean = _.daño > _.daño
 
   def incremento: Hambre = 10
 
-  def cumpleCriteriosDeAdmision(competidor: Competidor): Boolean = (competidor.barbarosidad >= gradoDeBarbaridadMinimo) || (competidor.tieneUnArmaEquipada)
+  def cumpleCriteriosDeAdmision(competidor: Competidor): Boolean = (competidor.barbarosidad >= gradoDeBarbaridadMinimo) || competidor.tieneUnArmaEquipada
 
 }
 
 class Carrera(kilometrosDeCarrera: km, losParticipantesRequierenMontura: Boolean = false) extends Posta
 {
+  require(kilometrosDeCarrera > 0, "Los kilometrosDeCarrera deben ser positivos")
 
-  def ordenarPorMejor(competidores: List[Competidor]): List[Competidor] = competidores.sortBy(_.velocidad)
+  def elPrimeroEsMejorQueElSegundo: (Competidor, Competidor) => Boolean = _.velocidad > _.velocidad
 
   def incremento: Hambre = 1 * kilometrosDeCarrera
 
