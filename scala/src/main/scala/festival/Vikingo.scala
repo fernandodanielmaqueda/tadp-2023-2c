@@ -2,7 +2,6 @@ package festival
 
 import scala.util.{Try, Success, Failure}
 
-//class Vikingo (val peso: kg, val velocidad: km_h, val barbarosidad: Barbarosidad, private var _nivelDeHambre: Hambre, val item: Item) {
 case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nivelDeHambre: Hambre, item: Item) extends Competidor {
   require(peso > 0, "El peso debe ser positivo")
   require(velocidad > 0, "La velocidad debe ser positiva")
@@ -12,42 +11,21 @@ case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nive
   def nivelDeHambre: Hambre = _nivelDeHambre
 
   def nivelDeHambreAlQueIncrementaria(incremento: Hambre): Hambre = Math.min(100, nivelDeHambre + incremento)
+  def nivelDeHambreAlQueDecrementaria(decremento: Hambre): Hambre = Math.max(0, nivelDeHambre - decremento)
 
-//  def incrementarNivelDeHambre(incremento: Hambre): Unit = {
-//    _nivelDeHambre = nivelDeHambreAlQueIncrementaria(incremento)
-//  }
 
   def incrementarNivelDeHambre(incremento: Hambre): Vikingo = {
     this.copy(_nivelDeHambre = nivelDeHambreAlQueIncrementaria(incremento))
   }
-
-//  def decrementarNivelDeHambre(decremento: Hambre): Unit = {
-//    _nivelDeHambre = Math.max(0, _nivelDeHambre - decremento)
-//  }
-
   def decrementarNivelDeHambre(decremento: Hambre): Vikingo = {
-    this.copy(_nivelDeHambre = Math.max(0, _nivelDeHambre - decremento))
+    this.copy(_nivelDeHambre = nivelDeHambreAlQueDecrementaria(decremento))
   }
 
-  def darHambrePorParticiparEnUnaPosta(incremento: Hambre): Vikingo = {
-    this.incrementarNivelDeHambre(incremento)
-  }
-
-  def porcentajeDeHambre: String = s"${nivelDeHambre}%"
-
-  def significadoPorcentajeDeHambre: String = {
-    if(nivelDeHambre == 0) "panza llena, corazón contento"
-    else throw new MyCustomException("El porcentajeDeHambre no tiene un significado asociado");
-  }
-
-//  def competirEn(unaPosta: Posta): Unit = {
-//    if (!puedeCompetirEn(unaPosta)) throw new MyCustomException("El vikingo no puede competir en esa posta")
-//
-//  }
+  def darHambrePorParticiparEn[Vikingo](unaPosta: Posta): Vikingo
 
   def competirEn(unaPosta: Posta): Vikingo = {
     if (!puedeCompetirEn(unaPosta)) throw new MyCustomException("El vikingo no puede competir en esa posta")
-    item.utilizarSobre(this.darHambrePorParticiparEnUnaPosta(unaPosta.incremento))
+    item.utilizarSobre(this.darHambrePorParticiparEn(unaPosta))
   }
 
   def maximoDeKgDePescadoQuePuedeCargar: kg = (peso / 2) + (2 * barbarosidad)
@@ -70,10 +48,6 @@ case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nive
   def tieneItem(unItemEnParticular: Item): Boolean = unItemEnParticular == item
 
   def tieneUnArmaEquipada: Boolean = item.isInstanceOf[Arma]
-//    item match {
-//    case unArma: Arma => true
-//    case _ => false
-//  }
 
   def tieneMontura: Boolean = false
 
