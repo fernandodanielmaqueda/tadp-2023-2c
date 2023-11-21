@@ -11,6 +11,8 @@ abstract class Posta {
 
   def elPrimeroEsMejorQueElSegundo: (Competidor, Competidor) => Boolean
 
+  // def cuantoPuntuaria(unCompetidor: Competidor)
+
   def ordenarPorMejor(competidores: List[Competidor]): List[Competidor] = competidores.sortWith(elPrimeroEsMejorQueElSegundo)
 
   def incremento: Hambre

@@ -7,7 +7,7 @@ trait Competidor {
   //def peso: kg
   def velocidad: km_h
   def barbarosidad: Barbarosidad
-  //def item: Item
+  def item: Item
 
   def nivelDeHambre: Hambre
 
@@ -29,8 +29,7 @@ trait Competidor {
   def puedeCompetirEn(unaPosta: Posta): Boolean = nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta) < 100
   def competirEn(unaPosta: Posta): T = {
     if (!puedeCompetirEn(unaPosta)) throw new MyCustomException("El competidor no puede competir en la posta")
-    //item.aplicarSobre(this.darHambrePorParticiparEn(unaPosta))
-    ???
+    item.aplicacionPropia(this.darHambrePorParticiparEn(unaPosta))
   }
 
   def maximoDeKgDePescadoQuePuedeCargar: kg
@@ -43,5 +42,3 @@ trait Competidor {
   def esMejorQue(otroCompetidor: Competidor)(unaPosta: Posta): Boolean = unaPosta.elPrimeroEsMejorQueElSegundo(this, otroCompetidor)
 
 }
-
-//Astrid.esMejorQue(Hipo)(unCombate)

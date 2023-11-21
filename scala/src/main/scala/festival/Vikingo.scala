@@ -31,6 +31,10 @@ case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nive
     ???
   }
 
+  //def mejorMontura()
+  //def comoLeConvieneParticiparEn(unaPosta: Posta)
+
+
   def montar(unDragon: Dragon): Jinete = {
     ???
 //    posibleMontura(dragon) match {

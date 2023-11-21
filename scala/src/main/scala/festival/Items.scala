@@ -4,7 +4,8 @@ abstract class Item {
 
   def daño: Daño = 0
 
-  def aplicarSobre(unCompetidor: Competidor): Competidor = unCompetidor
+  //def aplicacionPropia(usuario: Competidor): Competidor = usuario
+  def aplicacionPropia[A <: Competidor](usuario: A): A = usuario
 
 }
 
@@ -24,6 +25,8 @@ object Maza extends Arma(20)
 case class Comestible(decrementoDeHambre: Hambre) extends Item {
   require(decrementoDeHambre >= 0, "El decrementoDeHambre no puede ser negativo")
 
-  override def aplicarSobre(unCompetidor: Competidor): Competidor = unCompetidor.decrementarNivelDeHambre(decrementoDeHambre)
+  //override def aplicacionPropia(usuario: Competidor): Competidor = usuario.decrementarNivelDeHambre(decrementoDeHambre)
+  override def aplicacionPropia[A <: Competidor](usuario: A): A = usuario.decrementarNivelDeHambre(decrementoDeHambre)
+  //override def aplicacionPropia[A](usuario: A)(implicit ev: Competidor): A = ev.decrementarNivelDeHambre(decrementoDeHambre)
 
 }
