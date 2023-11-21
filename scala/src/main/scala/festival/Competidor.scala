@@ -1,8 +1,6 @@
 package festival
 
 trait Competidor {
-  //that =>
-  type T <: Competidor
 
   //def peso: kg
   def velocidad: km_h
@@ -14,26 +12,22 @@ trait Competidor {
   def nivelDeHambreAlQueIncrementariaCon(incremento: Hambre): Hambre
   def nivelDeHambreAlQueDecrementariaCon(decremento: Hambre): Hambre
 
-  def incrementarNivelDeHambre(incremento: Hambre): T
-  def decrementarNivelDeHambre(decremento: Hambre): T
+  def incrementarNivelDeHambre(incremento: Hambre): Competidor
+  def decrementarNivelDeHambre(decremento: Hambre): Competidor
 
   def cuantaHambreDeberiaIncrementarPorParticiparEn(unaPosta: Posta): Hambre = unaPosta.incremento
   def nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta: Posta): Hambre = nivelDeHambreAlQueIncrementariaCon(cuantaHambreDeberiaIncrementarPorParticiparEn(unaPosta))
-  def darHambrePorParticiparEn(unaPosta: Posta): T = {
+  def darHambrePorParticiparEn(unaPosta: Posta): Competidor = {
     this.incrementarNivelDeHambre(nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta))
   }
 
-  //def utilizarItem
-  //def utilizarItemSobre
-
   def puedeCompetirEn(unaPosta: Posta): Boolean = nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta) < 100
-  def competirEn(unaPosta: Posta): T = {
+  def competirEn(unaPosta: Posta): Competidor = {
     if (!puedeCompetirEn(unaPosta)) throw new MyCustomException("El competidor no puede competir en la posta")
     item.aplicacionPropia(this.darHambrePorParticiparEn(unaPosta))
   }
 
   def maximoDeKgDePescadoQuePuedeCargar: kg
-
   def daño: Daño
 
   def tieneUnArmaEquipada: Boolean

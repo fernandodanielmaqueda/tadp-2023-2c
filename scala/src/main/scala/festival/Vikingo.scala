@@ -3,8 +3,6 @@ package festival
 import scala.util.{Try, Success, Failure}
 
 case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nivelDeHambre: Hambre, item: Item) extends Competidor {
-  override type T = Vikingo
-
   require(peso > 0, "El peso debe ser positivo")
   require(velocidad > 0, "La velocidad debe ser positiva")
   require(barbarosidad >= 0, "La barbarosidad no puede ser negativa")
@@ -24,10 +22,12 @@ case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nive
   }
 
   def maximoDeKgDePescadoQuePuedeCargar: kg = (peso / 2) + (2 * barbarosidad)
-
   def daño: Daño = barbarosidad + item.daño
 
-  def elegirComoParticipar(dragonesDisponibles: List[Dragon]): (Competidor, List[Dragon]) = {
+  def tieneUnArmaEquipada: Boolean = item.isInstanceOf[Arma]
+  def tieneMontura: Boolean = false
+
+  def elegirComoParticipar(dragonesDisponibles: Set[Dragon]): (Competidor, Set[Dragon]) = {
     ???
   }
 
@@ -45,9 +45,5 @@ case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nive
   //def posibleMontura(unDragon: Dragon): Try[Jinete] =
 
   def tieneItem(unItemEnParticular: Item): Boolean = unItemEnParticular == item
-
-  def tieneUnArmaEquipada: Boolean = item.isInstanceOf[Arma]
-
-  def tieneMontura: Boolean = false
 
 }

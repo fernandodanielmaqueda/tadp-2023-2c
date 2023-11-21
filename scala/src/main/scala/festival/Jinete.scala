@@ -1,7 +1,6 @@
 package festival
 
 case class Jinete(vikingo: Vikingo, dragon: Dragon) extends Competidor {
-  override type T = Jinete
 
   //def peso: kg = vikingo.peso + dragon.peso
   def velocidad: km_h = dragon.velocidadVuelo - 1 * vikingo.peso
@@ -25,7 +24,6 @@ case class Jinete(vikingo: Vikingo, dragon: Dragon) extends Competidor {
   override def puedeCompetirEn(unaPosta: Posta): Boolean = vikingo.puedeCompetirEn(unaPosta)
 
   def maximoDeKgDePescadoQuePuedeCargar: kg = dragon.hastaCuantoPuedeCargar - vikingo.peso
-
   def daño: Daño = vikingo.daño + dragon.dañoQueProduce
 
   def tieneUnArmaEquipada: Boolean = vikingo.tieneUnArmaEquipada

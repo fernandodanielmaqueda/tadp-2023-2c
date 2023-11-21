@@ -47,9 +47,3 @@ class Gronckle(_peso: kg, limiteDePesoParaVikingo: kg) extends Dragon(_peso) {
   restriccionesDeMonturaBasicas :+= new RequisitoDeMonturaNoSuperarPesoDeterminado(limiteDePesoParaVikingo)
 
 }
-
-object Chimuelo extends FuriaNocturna(200, 100)  {
-
-  restriccionesDeMonturaExtras :+= new RequisitoDeMonturaTenerItem(SistemaDeVuelo)
-
-}
