@@ -11,38 +11,34 @@ case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nive
   def nivelDeHambre: Hambre = _nivelDeHambre
 
   def nivelDeHambreAlQueIncrementariaCon(incremento: Hambre): Hambre = Math.min(100, nivelDeHambre + incremento)
+
   def nivelDeHambreAlQueDecrementariaCon(decremento: Hambre): Hambre = Math.max(0, nivelDeHambre - decremento)
 
 
-  def incrementarNivelDeHambre(incremento: Hambre): Vikingo = {
-    this.copy(_nivelDeHambre = nivelDeHambreAlQueIncrementariaCon(incremento))
-  }
-  def decrementarNivelDeHambre(decremento: Hambre): Vikingo = {
-    this.copy(_nivelDeHambre = nivelDeHambreAlQueDecrementariaCon(decremento))
-  }
+  def incrementarNivelDeHambre(incremento: Hambre): Vikingo = this.copy(_nivelDeHambre = nivelDeHambreAlQueIncrementariaCon(incremento))
+
+  def decrementarNivelDeHambre(decremento: Hambre): Vikingo = this.copy(_nivelDeHambre = nivelDeHambreAlQueDecrementariaCon(decremento))
 
   def maximoDeKgDePescadoQuePuedeCargar: kg = (peso / 2) + (2 * barbarosidad)
+
   def daño: Daño = barbarosidad + item.daño
 
   def tieneUnArmaEquipada: Boolean = item.isInstanceOf[Arma]
   def tieneMontura: Boolean = false
 
-  def elegirComoParticipar(dragonesDisponibles: Set[Dragon]): (Competidor, Set[Dragon]) = {
-    ???
-  }
-
-  //def mejorMontura()
-  //def comoLeConvieneParticiparEn(unaPosta: Posta)
-
-
   def montar(unDragon: Dragon): Jinete = {
-    ???
-//    posibleMontura(dragon) match {
-//      case Success(unJinete) => unJinete
-//      case Failure(excepcion) => throw excepcion
+    if (!unDragon.loPuedeMontar(this)) throw new NoSePudoMontarDragonException("El vikingo no pudo montar al dragón")
+    Jinete(this, unDragon)
   }
 
-  //def posibleMontura(unDragon: Dragon): Try[Jinete] =
+  def determinarParticipacionEn(unaPosta: Posta, dragonesDisponibles: Set[Dragon]): Option[Competidor] = {
+    unaPosta.ordenarPorMejor(
+      (
+        for (dragonQuePuedeLlegarAMontar <- dragonesDisponibles.toList if dragonQuePuedeLlegarAMontar.loPuedeMontar(this))
+        yield this.montar(dragonQuePuedeLlegarAMontar)
+      ).appended(this).filter(_.puedeParticiparEn(unaPosta))
+    ).headOption
+  }
 
   def tieneItem(unItemEnParticular: Item): Boolean = unItemEnParticular == item
 

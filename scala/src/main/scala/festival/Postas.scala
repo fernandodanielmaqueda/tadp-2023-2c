@@ -1,23 +1,15 @@
 package festival
 
-abstract class Posta {
-
-  def participar(anotados: List[Competidor]): List[Competidor] = {
-    ordenarPorMejor(
-      for (contendiente <- anotados if cumpleCriteriosDeAdmision(contendiente) && contendiente.puedeCompetirEn(this))
-      yield contendiente.competirEn(this)
-    )
-  }
+trait Posta {
+  def participar(contendientes: List[Competidor]): List[Competidor] =
+    this.ordenarPorMejor(contendientes).map(_.participarEn(this))
 
   def elPrimeroEsMejorQueElSegundo: (Competidor, Competidor) => Boolean
-
-  // def cuantoPuntuaria(unCompetidor: Competidor)
-
   def ordenarPorMejor(competidores: List[Competidor]): List[Competidor] = competidores.sortWith(elPrimeroEsMejorQueElSegundo)
 
   def incremento: Hambre
 
-  def cumpleCriteriosDeAdmision(competidor: Competidor): Boolean
+  def admiteA(competidor: Competidor): Boolean
 
 }
 
@@ -29,7 +21,7 @@ class Pesca(pesoMinimoQueDebeLevantar: kg = 0) extends Posta
 
   def incremento: Hambre = 5
 
-  def cumpleCriteriosDeAdmision(competidor: Competidor): Boolean = competidor.maximoDeKgDePescadoQuePuedeCargar >= pesoMinimoQueDebeLevantar
+  def admiteA(competidor: Competidor): Boolean = competidor.maximoDeKgDePescadoQuePuedeCargar >= pesoMinimoQueDebeLevantar
 
 }
 
@@ -41,7 +33,7 @@ class Combate(gradoDeBarbaridadMinimo: Barbarosidad) extends Posta
 
   def incremento: Hambre = 10
 
-  def cumpleCriteriosDeAdmision(competidor: Competidor): Boolean = (competidor.barbarosidad >= gradoDeBarbaridadMinimo) || competidor.tieneUnArmaEquipada
+  def admiteA(competidor: Competidor): Boolean = (competidor.barbarosidad >= gradoDeBarbaridadMinimo) || competidor.tieneUnArmaEquipada
 
 }
 
@@ -53,6 +45,6 @@ class Carrera(kilometrosDeCarrera: km, losParticipantesRequierenMontura: Boolean
 
   def incremento: Hambre = 1 * kilometrosDeCarrera
 
-  def cumpleCriteriosDeAdmision(competidor: Competidor): Boolean = !losParticipantesRequierenMontura || competidor.tieneMontura
+  def admiteA(competidor: Competidor): Boolean = !losParticipantesRequierenMontura || competidor.tieneMontura
 
 }

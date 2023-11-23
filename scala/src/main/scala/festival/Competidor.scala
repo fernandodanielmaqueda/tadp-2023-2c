@@ -2,7 +2,7 @@ package festival
 
 trait Competidor {
 
-  //def peso: kg
+  def peso: kg
   def velocidad: km_h
   def barbarosidad: Barbarosidad
   def item: Item
@@ -17,14 +17,13 @@ trait Competidor {
 
   def cuantaHambreDeberiaIncrementarPorParticiparEn(unaPosta: Posta): Hambre = unaPosta.incremento
   def nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta: Posta): Hambre = nivelDeHambreAlQueIncrementariaCon(cuantaHambreDeberiaIncrementarPorParticiparEn(unaPosta))
-  def darHambrePorParticiparEn(unaPosta: Posta): Competidor = {
-    this.incrementarNivelDeHambre(nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta))
-  }
+  def darHambrePorParticiparEn(unaPosta: Posta): Competidor = this.incrementarNivelDeHambre(nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta))
 
-  def puedeCompetirEn(unaPosta: Posta): Boolean = nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta) < 100
-  def competirEn(unaPosta: Posta): Competidor = {
-    if (!puedeCompetirEn(unaPosta)) throw new MyCustomException("El competidor no puede competir en la posta")
-    item.aplicacionPropia(this.darHambrePorParticiparEn(unaPosta))
+  def cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta: Posta): Boolean = nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta) < 100
+  def puedeParticiparEn(unaPosta: Posta): Boolean = cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta) && unaPosta.admiteA(this)
+  def participarEn(unaPosta: Posta): Competidor = {
+    if (!puedeParticiparEn(unaPosta)) throw new CompetidorNoPudoParticiparEnPostaException("El competidor no pudo participar en la posta")
+    item.aplicarSobrePortador(this.darHambrePorParticiparEn(unaPosta))
   }
 
   def maximoDeKgDePescadoQuePuedeCargar: kg

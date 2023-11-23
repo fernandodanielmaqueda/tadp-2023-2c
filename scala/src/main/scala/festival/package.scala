@@ -9,6 +9,7 @@ package object festival {
 
   val velocidadBaseNormal = 60
 
-  class MyCustomException(descripcion: String) extends Exception(descripcion)
+  class CompetidorNoPudoParticiparEnPostaException(descripcion: String) extends Exception(descripcion)
+  class NoSePudoMontarDragonException(descripcion: String) extends Exception(descripcion)
 
 }

@@ -1,28 +1,46 @@
 package festival
 
-class Torneo(serieDePostas: List[Posta], conjuntoDeDragones: Set[Dragon]) {
+class Torneo(serieDePostas: List[Posta], conjuntoDeDragones: Set[Dragon], reglas: ReglasDeTorneo = ReglasDeTorneoEstandar) {
+//class Torneo(serieDePostas: List[Posta], conjuntoDeDragones: Set[Dragon]) extends ReglasDeTorneo {
+  elTorneo =>
 
-  def anotarse(grupoDeVikingos: List[Vikingo]): List[Vikingo] = {
-    //require(grupoDeVikingos.nonEmpty, "El grupo de vikingos no puede ser vacio")
+  // Otra opción: usar inner
+  //  trait Reglas{
+  //
+  //  }
+  // Además se podría: Usar implicit
 
-    serieDePostas.foldLeft(grupoDeVikingos)((vikingos, posta) =>
-      vikingos match {
-        case Nil => Nil
-        case vikingoGanador :: Nil => List(vikingoGanador)
-        case vikingosRestantes =>
-          posta.participar(
-            vikingosRestantes.foldLeft((List(): List[Competidor], conjuntoDeDragones))((tupla, vikingoActual) => tupla match { case (competidores, dragonesDisponibles) =>
-              val (competidorActual, nuevosDragonesDisponibles) = vikingoActual.elegirComoParticipar(dragonesDisponibles)
-              (competidores :+ competidorActual, nuevosDragonesDisponibles)
-              })._1
-            )
-            .map {
-            case unVikingo: Vikingo => unVikingo
-            case unJinete: Jinete => unJinete.vikingo
-          }
-      }
-    )
+  class Ronda(postaActual: Posta) {
 
+    def alistarA(vikingosRestantes: List[Vikingo]): List[Vikingo] = {
+      reglas.quienesPasan(postaActual.participar(
+        reglas.preparacion(vikingosRestantes, conjuntoDeDragones, postaActual)
+      ).map {
+        case unVikingo: Vikingo => unVikingo
+        case unJinete: Jinete => unJinete.vikingo
+      })
+
+    }
+
+
+
+  }
+
+  def anotarA(grupoDeVikingos: List[Vikingo]): Either[String, Vikingo] = {
+    require(grupoDeVikingos.nonEmpty, "El grupoDeVikingos no puede ser vacio")
+    ???
+
+//    serieDePostas.foldLeft(grupoDeVikingos)((vikingos, postaActual) =>
+//      vikingos match {
+//        case Nil => return Left("No hubo ningún ganador")
+//        case vikingoGanador :: Nil => return Right(vikingoGanador)
+//        case vikingosRestantes => new Ronda(postaActual).alistarA(vikingosRestantes)
+//      }
+//    ) match {
+//      case Nil => Left("No hubo ningún ganador")
+//      case vikingoGanador :: Nil => Right(vikingoGanador)
+//      case vikingosRestantes => reglas.queHacerEnCasoDeTerminarElTorneoConVariosParticipantes(vikingosRestantes)
+//    }
   }
 
 }
