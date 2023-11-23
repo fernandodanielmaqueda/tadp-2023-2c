@@ -13,16 +13,16 @@ trait Dragon {
 
   def puedeRemontarVueloCon(unVikingo: Vikingo): Boolean = unVikingo.peso <= hastaCuantoPuedeCargar
 
-  def restriccionesDeMontura: List[RequisitoDeMontura] = restriccionesDeMonturaBasicas ::: restriccionesDeMonturaExtras
-  protected def restriccionesDeMonturaBasicas: List[RequisitoDeMontura] = List(RequisitoDeMonturaBasico)
-  protected def restriccionesDeMonturaExtras: List[RequisitoDeMontura]
+  protected def restriccionesDeMonturaBasicas: Set[RequisitoDeMontura] = Set(RequisitoDeMonturaBasico)
+  protected def restriccionesDeMonturaExtras: Set[RequisitoDeMontura]
+  def restriccionesDeMontura: Set[RequisitoDeMontura] = restriccionesDeMonturaBasicas ++ restriccionesDeMonturaExtras
 
   def loPuedeMontar(unVikingo: Vikingo): Boolean =
     restriccionesDeMontura.forall(_.seCumplePor(unVikingo, this))
 
 }
 
-case class FuriaNocturna(peso: kg, protected val restriccionesDeMonturaExtras: List[RequisitoDeMontura], dañoQueProduce: Daño) extends Dragon {
+case class FuriaNocturna(peso: kg, protected val restriccionesDeMonturaExtras: Set[RequisitoDeMontura], dañoQueProduce: Daño) extends Dragon {
   require(peso > 0, "El peso debe ser positivo")
   require(dañoQueProduce >= 0, "El dañoQueProduce no puede ser negativo")
 
@@ -30,16 +30,17 @@ case class FuriaNocturna(peso: kg, protected val restriccionesDeMonturaExtras: L
 
 }
 
-case class NadderMortifero(peso: kg, protected val restriccionesDeMonturaExtras: List[RequisitoDeMontura]) extends Dragon {
+case class NadderMortifero(peso: kg, protected val restriccionesDeMonturaExtras: Set[RequisitoDeMontura]) extends Dragon {
   require(peso > 0, "El peso debe ser positivo")
 
   def dañoQueProduce: Daño = 150
 
-  override def restriccionesDeMonturaBasicas: List[RequisitoDeMontura] = super.restriccionesDeMontura :+ RequisitoDeMonturaNoSuperarDañoPropio
+  override def restriccionesDeMonturaBasicas: Set[RequisitoDeMontura] =
+    super.restriccionesDeMontura + RequisitoDeMonturaNoSuperarDañoPropio
 
 }
 
-case class Gronckle(peso: kg, protected val restriccionesDeMonturaExtras: List[RequisitoDeMontura], limiteDePesoParaVikingo: kg) extends Dragon {
+case class Gronckle(peso: kg, protected val restriccionesDeMonturaExtras: Set[RequisitoDeMontura], limiteDePesoParaVikingo: kg) extends Dragon {
   require(peso > 0, "El peso debe ser positivo")
   require(limiteDePesoParaVikingo >= 0, "El limiteDePesoParaVikingo no puede ser negativo")
 
@@ -47,6 +48,7 @@ case class Gronckle(peso: kg, protected val restriccionesDeMonturaExtras: List[R
 
   def dañoQueProduce: Daño = 5 * peso
 
-  override def restriccionesDeMonturaBasicas: List[RequisitoDeMontura] = super.restriccionesDeMontura :+ new RequisitoDeMonturaNoSuperarPesoDeterminado(limiteDePesoParaVikingo)
+  override def restriccionesDeMonturaBasicas: Set[RequisitoDeMontura] =
+    super.restriccionesDeMontura + new RequisitoDeMonturaNoSuperarPesoDeterminado(limiteDePesoParaVikingo)
 
 }
