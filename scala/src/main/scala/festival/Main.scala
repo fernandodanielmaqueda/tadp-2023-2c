@@ -17,8 +17,8 @@ object Main extends App {
 
   val Chimuelo = FuriaNocturna(300, Set(new RequisitoDeMonturaTenerItem(SistemaDeVuelo)), 100)
 
-  val FestivalDeInvierno = new Torneo(List(new Pesca, new Combate(1), new Carrera(5)), Set(Chimuelo))
+  val FestivalDeInvierno = new TorneoEstandar(List(new Pesca, new Combate(1), new Carrera(5)), Set(Chimuelo))
 
-  FestivalDeInvierno.anotarA(List(Hipo, Astrid, Patan, Patapez))
+  FestivalDeInvierno.inscribirA(List(Hipo, Astrid, Patan, Patapez))
 
 }

@@ -1,5 +1,3 @@
 package festival
 
-trait Participante {
-
-}
+trait Participante
