@@ -34,7 +34,9 @@ class TorneoPorEquipos(val serieDePostas: List[Posta], val conjuntoDeDragones: S
 
   def comoAlistarA(equiposRestantes: List[Equipo]): List[Vikingo] = equiposRestantes.map(_.conjuntoDeVikingos.toList).transpose.flatten
 
-  def reagruparA(nuevosVikingos: List[Vikingo], equiposActuales: List[Equipo]): List[Equipo] = equiposActuales.map
+  def reagruparA(vikingosRestantes: List[Vikingo], equiposActuales: List[Equipo]): List[Equipo] = for {
+    equipo <- equiposActuales.map(_.conjuntoDeVikingos & vikingosRestantes.toSet) if equipo.nonEmpty
+  } yield Equipo(equipo)
 
   def decisionGanador(restantes: List[Equipo]): Equipo = restantes.maxBy(_.conjuntoDeVikingos.size)
 

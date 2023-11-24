@@ -21,7 +21,7 @@ trait ReglasDeTorneo[A <: Participante] {
 
   def comoAlistarA(competidoresRestantes: List[A]): List[Vikingo]
 
-  def reagruparA(nuevosVikingos: List[Vikingo], competidoresActuales: List[A]): List[A]
+  def reagruparA(vikingosRestantes: List[Vikingo], competidoresActuales: List[A]): List[A]
 
   // anotarA
   def inscribirA(grupoDeCompetidores: List[A]): Either[String, A] = {
@@ -68,7 +68,7 @@ trait ReglasDeTorneoEstandar extends ReglasDeTorneo[Vikingo] {
 
   def comoAlistarA(vikingosRestantes: List[Vikingo]): List[Vikingo] = vikingosRestantes
 
-  def reagruparA(nuevosVikingos: List[Vikingo], vikingosActuales: List[Vikingo]): List[Vikingo] = nuevosVikingos
+  def reagruparA(vikingosRestantes: List[Vikingo], vikingosActuales: List[Vikingo]): List[Vikingo] = vikingosRestantes
 
   def decisionGanador(restantes: List[Vikingo]): Vikingo = restantes.head
 

@@ -18,7 +18,7 @@ trait Dragon {
   def restriccionesDeMontura: Set[RequisitoDeMontura] = restriccionesDeMonturaBasicas ++ restriccionesDeMonturaExtras
 
   def loPuedeMontar(unVikingo: Vikingo): Boolean =
-    restriccionesDeMontura.forall(_.seCumplePor(unVikingo, this))
+    restriccionesDeMontura.forall(_(unVikingo, this))
 
 }
 
