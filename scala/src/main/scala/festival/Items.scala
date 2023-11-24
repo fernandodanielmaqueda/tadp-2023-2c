@@ -21,6 +21,7 @@ object Maza extends Arma(20)
 case class Comestible(decrementoDeHambre: Hambre) extends Item {
   require(decrementoDeHambre >= 0, "El decrementoDeHambre no puede ser negativo")
 
-  override def aplicarSobrePortador(usuario: Competidor): Competidor = usuario.decrementarNivelDeHambre(decrementoDeHambre)
+  override def aplicarSobrePortador(usuario: Competidor): Competidor =
+    usuario.decrementarNivelDeHambre(decrementoDeHambre)
 
 }

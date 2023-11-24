@@ -23,15 +23,17 @@ trait ReglasDeTorneo[A <: Participante] {
 
   def reagruparA(vikingosRestantes: List[Vikingo], competidoresActuales: List[A]): List[A]
 
-  // anotarA
-  def inscribirA(grupoDeCompetidores: List[A]): Either[String, A] = {
+  def inscribirA(grupoDeCompetidores: List[A]): Either[String, A] = { // anotarA
     require(grupoDeCompetidores.nonEmpty, "El grupoDeCompetidores no puede ser vacio")
 
     this.serieDePostas.foldLeft(grupoDeCompetidores)((competidoresActuales, postaActual) =>
       competidoresActuales match {
         case Nil => List()
         case competidorGanador :: Nil => List(competidorGanador)
-        case competidoresRestantes => this.reagruparA(new Ronda(postaActual).alistarA(this.comoAlistarA(competidoresRestantes)), competidoresActuales)
+        case competidoresRestantes =>
+          this.reagruparA(
+            new Ronda(postaActual).alistarA(this.comoAlistarA(competidoresRestantes)), competidoresActuales
+          )
       }
     ) match {
       case Nil => Left("No hubo ningun ganador")
@@ -43,24 +45,19 @@ trait ReglasDeTorneo[A <: Participante] {
   def preparacion(vikingosRestantes: List[Vikingo], conjuntoDeDragones: Set[Dragon], postaActual: Posta): List[Competidor] = {
     vikingosRestantes.foldLeft((List[Competidor](), conjuntoDeDragones))((tupla, vikingoActual) => tupla match {
       case (competidoresActuales, dragonesDisponibles) =>
-        vikingoActual.determinarParticipacionEn(postaActual, dragonesDisponibles) match {
-          case None => (competidoresActuales, dragonesDisponibles)
-          case Some(nuevoCompetidor) => nuevoCompetidor match {
-            case unVikingo: Vikingo => (competidoresActuales :+ unVikingo, dragonesDisponibles)
-            case unJinete: Jinete => (competidoresActuales :+ unJinete, dragonesDisponibles - unJinete.dragon)
-          }
-        }
+        vikingoActual.determinarParticipacionEn(postaActual, dragonesDisponibles).map {
+          case unVikingo: Vikingo => (competidoresActuales :+ unVikingo, dragonesDisponibles)
+          case unJinete: Jinete => (competidoresActuales :+ unJinete, dragonesDisponibles - unJinete.dragon)
+        }.getOrElse((competidoresActuales, dragonesDisponibles))
     }) match {
       case (competidores, _) => competidores
     }
   }
 
-  // quienesContinuan / quienesAvanzan
-  def quienesPasan(resultantes: List[Vikingo]): List[Vikingo] =
+  def quienesPasan(resultantes: List[Vikingo]): List[Vikingo] = // quienesContinuan / quienesAvanzan
     resultantes.take(resultantes.length / 2)
 
-  // enCasoDeTerminarElTorneoConVariosParticipantes
-  def decisionGanador(competidores: List[A]): A
+  def decisionGanador(competidores: List[A]): A // enCasoDeTerminarElTorneoConVariosParticipantes
 
 }
 

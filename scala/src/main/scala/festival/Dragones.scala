@@ -15,7 +15,8 @@ trait Dragon {
 
   protected def restriccionesDeMonturaBasicas: Set[RequisitoDeMontura] = Set(RequisitoDeMonturaBasico)
   protected def restriccionesDeMonturaExtras: Set[RequisitoDeMontura]
-  def restriccionesDeMontura: Set[RequisitoDeMontura] = restriccionesDeMonturaBasicas ++ restriccionesDeMonturaExtras
+  def restriccionesDeMontura: Set[RequisitoDeMontura] =
+    restriccionesDeMonturaBasicas ++ restriccionesDeMonturaExtras
 
   def loPuedeMontar(unVikingo: Vikingo): Boolean =
     restriccionesDeMontura.forall(_(unVikingo, this))

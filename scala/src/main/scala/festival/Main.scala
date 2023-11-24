@@ -10,9 +10,11 @@ object Main extends App {
 
   object Patapez extends Vikingo(80, 10, 4, 30, new Comestible(5)) {
 
-    override def cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta: Posta): Boolean = super.cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta) && nivelDeHambre <= 50
+    override def cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta: Posta): Boolean =
+      super.cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta) && nivelDeHambre <= 50
 
-    override def cuantaHambreDeberiaIncrementarPorParticiparEn(unaPosta: Posta): Hambre = 2 * unaPosta.incremento
+    override def cuantaHambreDeberiaIncrementarPorParticiparEn(unaPosta: Posta): Hambre =
+      2 * unaPosta.incremento
 
   }
 

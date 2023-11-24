@@ -27,7 +27,8 @@ trait Competidor {
   def puedeParticiparEn(unaPosta: Posta): Boolean =
     cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta) && unaPosta.admiteA(this)
   def participarEn(unaPosta: Posta): Competidor = {
-    if (!puedeParticiparEn(unaPosta)) throw new CompetidorNoPudoParticiparEnPostaException("El competidor no pudo participar en la posta")
+    if (!puedeParticiparEn(unaPosta))
+      throw new CompetidorNoPudoParticiparEnPostaException("El competidor no pudo participar en la posta")
     item.aplicarSobrePortador(this.darHambrePorParticiparEn(unaPosta))
   }
 

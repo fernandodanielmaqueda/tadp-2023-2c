@@ -32,12 +32,14 @@ class TorneoConHandicap(val serieDePostas: List[Posta], val conjuntoDeDragones: 
 
 class TorneoPorEquipos(val serieDePostas: List[Posta], val conjuntoDeDragones: Set[Dragon]) extends ReglasDeTorneo[Equipo] {
 
-  def comoAlistarA(equiposRestantes: List[Equipo]): List[Vikingo] = equiposRestantes.map(_.conjuntoDeVikingos.toList).transpose.flatten
+  def comoAlistarA(equiposRestantes: List[Equipo]): List[Vikingo] =
+    equiposRestantes.map(_.conjuntoDeVikingos.toList).transpose.flatten
 
   def reagruparA(vikingosRestantes: List[Vikingo], equiposActuales: List[Equipo]): List[Equipo] = for {
     equipo <- equiposActuales.map(_.conjuntoDeVikingos & vikingosRestantes.toSet) if equipo.nonEmpty
   } yield Equipo(equipo)
 
-  def decisionGanador(restantes: List[Equipo]): Equipo = restantes.maxBy(_.conjuntoDeVikingos.size)
+  def decisionGanador(restantes: List[Equipo]): Equipo =
+    restantes.maxBy(_.conjuntoDeVikingos.size)
 
 }

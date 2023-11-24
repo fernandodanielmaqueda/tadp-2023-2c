@@ -9,15 +9,20 @@ case class Jinete(vikingo: Vikingo, dragon: Dragon) extends Competidor {
 
   def nivelDeHambre: Hambre = vikingo.nivelDeHambre
 
-  def nivelDeHambreAlQueIncrementariaCon(incremento: Hambre): Hambre = vikingo.nivelDeHambreAlQueIncrementariaCon(incremento)
-  def nivelDeHambreAlQueDecrementariaCon(decremento: Hambre): Hambre = vikingo.nivelDeHambreAlQueDecrementariaCon(decremento)
+  def nivelDeHambreAlQueIncrementariaCon(incremento: Hambre): Hambre =
+    vikingo.nivelDeHambreAlQueIncrementariaCon(incremento)
+  def nivelDeHambreAlQueDecrementariaCon(decremento: Hambre): Hambre =
+    vikingo.nivelDeHambreAlQueDecrementariaCon(decremento)
 
-  def incrementarNivelDeHambre(incremento: Hambre): Jinete = this.copy(vikingo = vikingo.incrementarNivelDeHambre(incremento))
-  def decrementarNivelDeHambre(decremento: Hambre): Jinete = this.copy(vikingo = vikingo.decrementarNivelDeHambre(decremento))
+  def incrementarNivelDeHambre(incremento: Hambre): Jinete =
+    this.copy(vikingo = vikingo.incrementarNivelDeHambre(incremento))
+  def decrementarNivelDeHambre(decremento: Hambre): Jinete =
+    this.copy(vikingo = vikingo.decrementarNivelDeHambre(decremento))
 
   override def cuantaHambreDeberiaIncrementarPorParticiparEn(unaPosta: Posta): Hambre = 5
 
-  //override def cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta: Posta): Boolean = vikingo.cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta)
+  //override def cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta: Posta): Boolean =
+  // vikingo.cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta)
 
   def maximoDeKgDePescadoQuePuedeCargar: kg = dragon.hastaCuantoPuedeCargar - vikingo.peso
   def daño: Daño = vikingo.daño + dragon.dañoQueProduce

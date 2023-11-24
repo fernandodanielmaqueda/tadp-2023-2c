@@ -10,17 +10,17 @@ case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nive
 
   def nivelDeHambre: Hambre = _nivelDeHambre
 
-  def nivelDeHambreAlQueIncrementariaCon(incremento: Hambre): Hambre = Math.min(100, nivelDeHambre + incremento)
+  def nivelDeHambreAlQueIncrementariaCon(incremento: Hambre): Hambre =
+    Math.min(100, nivelDeHambre + incremento)
+  def nivelDeHambreAlQueDecrementariaCon(decremento: Hambre): Hambre =
+    Math.max(0, nivelDeHambre - decremento)
 
-  def nivelDeHambreAlQueDecrementariaCon(decremento: Hambre): Hambre = Math.max(0, nivelDeHambre - decremento)
-
-
-  def incrementarNivelDeHambre(incremento: Hambre): Vikingo = this.copy(_nivelDeHambre = nivelDeHambreAlQueIncrementariaCon(incremento))
-
-  def decrementarNivelDeHambre(decremento: Hambre): Vikingo = this.copy(_nivelDeHambre = nivelDeHambreAlQueDecrementariaCon(decremento))
+  def incrementarNivelDeHambre(incremento: Hambre): Vikingo =
+    this.copy(_nivelDeHambre = nivelDeHambreAlQueIncrementariaCon(incremento))
+  def decrementarNivelDeHambre(decremento: Hambre): Vikingo =
+    this.copy(_nivelDeHambre = nivelDeHambreAlQueDecrementariaCon(decremento))
 
   def maximoDeKgDePescadoQuePuedeCargar: kg = (peso / 2) + (2 * barbarosidad)
-
   def daño: Daño = barbarosidad + item.daño
 
   def tieneUnArmaEquipada: Boolean = item.isInstanceOf[Arma]
@@ -29,14 +29,16 @@ case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nive
   def tieneItem(unItemEnParticular: Item): Boolean = unItemEnParticular == item
 
   def montar(unDragon: Dragon): Jinete = {
-    if (!unDragon.loPuedeMontar(this)) throw new NoSePudoMontarDragonException("El vikingo no pudo montar al dragón")
+    if (!unDragon.loPuedeMontar(this))
+      throw new NoSePudoMontarDragonException("El vikingo no pudo montar al dragón")
     Jinete(this, unDragon)
   }
 
   def determinarParticipacionEn(unaPosta: Posta, dragonesDisponibles: Set[Dragon]): Option[Competidor] = {
     unaPosta.ordenarPorMejor(
       (
-        for (dragonQuePuedeLlegarAMontar <- dragonesDisponibles.toList if dragonQuePuedeLlegarAMontar.loPuedeMontar(this))
+        for (dragonQuePuedeLlegarAMontar <- dragonesDisponibles.toList
+             if dragonQuePuedeLlegarAMontar.loPuedeMontar(this))
         yield this.montar(dragonQuePuedeLlegarAMontar)
       ).appended(this).filter(_.puedeParticiparEn(unaPosta))
     ).headOption
