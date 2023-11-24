@@ -1,6 +1,6 @@
 package festival
 
-import scala.util.{Try, Success, Failure}
+// import scala.util.{Try, Success, Failure}
 
 case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nivelDeHambre: Hambre, item: Item) extends Competidor with Participante {
   require(peso > 0, "El peso debe ser positivo")

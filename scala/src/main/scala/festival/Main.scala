@@ -1,6 +1,7 @@
 package festival
 
 object Main extends App {
+
   val unCombate = new Combate(0)
 
   val Hipo = Vikingo(50, 40, 1, 0, SistemaDeVuelo)

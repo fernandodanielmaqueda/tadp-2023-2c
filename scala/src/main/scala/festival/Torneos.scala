@@ -10,9 +10,9 @@ class TorneoEliminacion(val serieDePostas: List[Posta], val conjuntoDeDragones: 
 
 class TorneoInverso(val serieDePostas: List[Posta], val conjuntoDeDragones: Set[Dragon]) extends ReglasDeTorneoEstandar {
 
-  override def quienesPasan(competidores: List[Vikingo]): List[Vikingo] = competidores.drop(competidores.length / 2)
+  override def quienesPasan(resultantes: List[Vikingo]): List[Vikingo] = resultantes.drop(resultantes.length / 2)
 
-  override def decisionGanador(competidores: List[Vikingo]): Vikingo = competidores.last
+  override def decisionGanador(restantes: List[Vikingo]): Vikingo = restantes.last
 
 }
 
@@ -30,47 +30,12 @@ class TorneoConHandicap(val serieDePostas: List[Posta], val conjuntoDeDragones: 
 
 }
 
-//class TorneoPorEquipos(val serieDePostas: List[Posta], val conjuntoDeDragones: Set[Dragon]) extends ReglasDeTorneo {
-//
-//  def inscribirA(grupoDeEquipos: List[Equipo]): Either[String, Equipo] = {
-//    require(grupoDeEquipos.nonEmpty, "El grupoDeEquipos no puede ser vacio")
-//
-//    this.serieDePostas.foldLeft(grupoDeEquipos)((participantes, postaActual) =>
-//      participantes match {
-//        case Nil => List()
-//        case participanteGanador :: Nil => List(participanteGanador)
-//        case participantesRestantes => elTorneo.nuevaRonda(postaActual).alistarA(
-//          participantesRestantes match {
-//            //case grupoDeVikingos: List[Vikingo] => grupoDeVikingos
-//            case grupoDeEquipos: List[Equipo] => grupoDeEquipos.map(_.conjuntoDeVikingos.toList).transpose.flatten
-//            //case _ => throw new
-//          }
-//        )
-//      }
-//    ) match {
-//      case Nil => Left("No hubo ningun ganador")
-//      case participanteGanador :: Nil => Right(vikingoGanador)
-//      case vikingosRestantes => Right(reglas.decisionGanador(vikingosRestantes))
-//    }
-//  }
-//
-//  def preparacion(vikingosRestantes: List[Vikingo], conjuntoDeDragones: Set[Dragon], postaActual: Posta): List[Competidor] = {
-//    vikingosRestantes.foldLeft((List[Competidor](), conjuntoDeDragones))((tupla, vikingoActual) => tupla match {
-//      case (competidoresActuales, dragonesDisponibles) =>
-//        vikingoActual.determinarParticipacionEn(postaActual, dragonesDisponibles) match {
-//          case None => (competidoresActuales, dragonesDisponibles)
-//          case Some(nuevoCompetidor) => nuevoCompetidor match {
-//            case unVikingo: Vikingo => (competidoresActuales :+ unVikingo, dragonesDisponibles)
-//            case unJinete: Jinete => (competidoresActuales :+ unJinete, dragonesDisponibles - unJinete.dragon)
-//          }
-//        }
-//    }) match {
-//      case (competidores, _) => competidores
-//    }
-//  }
-//
-//  def quienesPasan(competidores: List[Vikingo]): List[Vikingo] = competidores.take(competidores.length / 2)
-//
-//  def decisionGanador(competidores: List[Vikingo]): Vikingo = competidores.head
-//
-//}
+class TorneoPorEquipos(val serieDePostas: List[Posta], val conjuntoDeDragones: Set[Dragon]) extends ReglasDeTorneo[Equipo] {
+
+  def comoAlistarA(equiposRestantes: List[Equipo]): List[Vikingo] = equiposRestantes.map(_.conjuntoDeVikingos.toList).transpose.flatten
+
+  def reagruparA(nuevosVikingos: List[Vikingo], equiposActuales: List[Equipo]): List[Equipo] = equiposActuales.map
+
+  def decisionGanador(restantes: List[Equipo]): Equipo = restantes.maxBy(_.conjuntoDeVikingos.size)
+
+}

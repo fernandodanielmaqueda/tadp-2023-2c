@@ -1,6 +1,7 @@
 package festival
 
 trait Posta {
+
   def participar(contendientes: List[Competidor]): List[Competidor] =
     this.ordenarPorMejor(contendientes).map(_.participarEn(this))
 
@@ -13,8 +14,7 @@ trait Posta {
 
 }
 
-class Pesca(pesoMinimoQueDebeLevantar: kg = 0) extends Posta
-{
+class Pesca(pesoMinimoQueDebeLevantar: kg = 0) extends Posta {
   require(pesoMinimoQueDebeLevantar >= 0, "El pesoMinimoQueDebeLevantar no puede ser negativo")
 
   def elPrimeroEsMejorQueElSegundo: (Competidor, Competidor) => Boolean = _.maximoDeKgDePescadoQuePuedeCargar > _.maximoDeKgDePescadoQuePuedeCargar
@@ -25,8 +25,7 @@ class Pesca(pesoMinimoQueDebeLevantar: kg = 0) extends Posta
 
 }
 
-class Combate(gradoDeBarbaridadMinimo: Barbarosidad) extends Posta
-{
+class Combate(gradoDeBarbaridadMinimo: Barbarosidad) extends Posta {
   require(gradoDeBarbaridadMinimo >= 0, "El gradoDeBarbaridadMinimo no puede ser negativo")
 
   def elPrimeroEsMejorQueElSegundo: (Competidor, Competidor) => Boolean = _.daño > _.daño
@@ -37,8 +36,7 @@ class Combate(gradoDeBarbaridadMinimo: Barbarosidad) extends Posta
 
 }
 
-class Carrera(kilometrosDeCarrera: km, losParticipantesRequierenMontura: Boolean = false) extends Posta
-{
+class Carrera(kilometrosDeCarrera: km, losParticipantesRequierenMontura: Boolean = false) extends Posta {
   require(kilometrosDeCarrera > 0, "Los kilometrosDeCarrera deben ser positivos")
 
   def elPrimeroEsMejorQueElSegundo: (Competidor, Competidor) => Boolean = _.velocidad > _.velocidad
