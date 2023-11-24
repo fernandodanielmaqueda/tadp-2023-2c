@@ -1,14 +1,12 @@
 package festival
 
-class Torneo(serieDePostas: List[Posta], conjuntoDeDragones: Set[Dragon], reglas: ReglasDeTorneo = ReglasDeTorneoEstandar) {
 //class Torneo(serieDePostas: List[Posta], conjuntoDeDragones: Set[Dragon]) extends ReglasDeTorneo {
+class Torneo(serieDePostas: List[Posta], conjuntoDeDragones: Set[Dragon], reglas: ReglasDeTorneo = Estandar) {
   elTorneo =>
 
-  // Otra opción: usar inner
-  //  trait Reglas{
-  //
-  //  }
-  // Además se podría: Usar implicit
+  // Otra posible idea: usar inner así:
+  //   trait Reglas
+  // Además tal vez se podría sumar implicit
 
   class Ronda(postaActual: Posta) {
 
@@ -22,25 +20,22 @@ class Torneo(serieDePostas: List[Posta], conjuntoDeDragones: Set[Dragon], reglas
 
     }
 
-
-
   }
 
   def anotarA(grupoDeVikingos: List[Vikingo]): Either[String, Vikingo] = {
     require(grupoDeVikingos.nonEmpty, "El grupoDeVikingos no puede ser vacio")
-    ???
 
-//    serieDePostas.foldLeft(grupoDeVikingos)((vikingos, postaActual) =>
-//      vikingos match {
-//        case Nil => return Left("No hubo ningún ganador")
-//        case vikingoGanador :: Nil => return Right(vikingoGanador)
-//        case vikingosRestantes => new Ronda(postaActual).alistarA(vikingosRestantes)
-//      }
-//    ) match {
-//      case Nil => Left("No hubo ningún ganador")
-//      case vikingoGanador :: Nil => Right(vikingoGanador)
-//      case vikingosRestantes => reglas.queHacerEnCasoDeTerminarElTorneoConVariosParticipantes(vikingosRestantes)
-//    }
+    serieDePostas.foldLeft(grupoDeVikingos)((vikingos, postaActual) =>
+      vikingos match {
+        case Nil => List()
+        case vikingoGanador :: Nil => List(vikingoGanador)
+        case vikingosRestantes => new Ronda(postaActual).alistarA(vikingosRestantes)
+      }
+    ) match {
+      case Nil => Left("No hubo ningun ganador")
+      case vikingoGanador :: Nil => Right(vikingoGanador)
+      case vikingosRestantes => Right(reglas.decisionGanador(vikingosRestantes))
+    }
   }
 
 }

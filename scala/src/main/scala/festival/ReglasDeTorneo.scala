@@ -1,37 +1,53 @@
 package festival
 
 trait ReglasDeTorneo {
+  def preparacion(vikingosRestantes: List[Vikingo], conjuntoDeDragones: Set[Dragon], postaActual: Posta): List[Competidor]
+  // quienesContinuan / quienesAvanzan
+  def quienesPasan(competidores: List[Vikingo]): List[Vikingo]
+  // enCasoDeTerminarElTorneoConVariosParticipantes
+  def decisionGanador(competidores: List[Vikingo]): Vikingo
+}
 
+trait ReglasDeTorneoEstandar extends ReglasDeTorneo {
   def preparacion(vikingosRestantes: List[Vikingo], conjuntoDeDragones: Set[Dragon], postaActual: Posta): List[Competidor] = {
-    vikingosRestantes.foldLeft((List(): List[Competidor], conjuntoDeDragones))((tupla, vikingoActual) => tupla match {
-      case (competidores, dragonesDisponibles) =>
+    vikingosRestantes.foldLeft((List[Competidor](), conjuntoDeDragones))((tupla, vikingoActual) => tupla match {
+      case (competidoresActuales, dragonesDisponibles) =>
         vikingoActual.determinarParticipacionEn(postaActual, dragonesDisponibles) match {
-          case None => (competidores, dragonesDisponibles)
-          case Some(competidorActual) => competidorActual match {
-            case unVikingo: Vikingo => (competidores, dragonesDisponibles)
-            case unJinete: Jinete => (competidores :+ unJinete, dragonesDisponibles.excl(unJinete.dragon))
+          case None => (competidoresActuales, dragonesDisponibles)
+          case Some(nuevoCompetidor) => nuevoCompetidor match {
+            case unVikingo: Vikingo => (competidoresActuales :+ unVikingo, dragonesDisponibles)
+            case unJinete: Jinete => (competidoresActuales :+ unJinete, dragonesDisponibles - unJinete.dragon)
           }
         }
-    })._1
+    }) match {
+      case (competidores, _) => competidores
+    }
   }
-
-  //def quienesPasan(competidores: List[Competidor]): List[Competidor]
-  def quienesPasan(competidores: List[Vikingo]): List[Vikingo]
-
-  //def queHacerEnCasoDeTerminarElTorneoConVariosParticipantes
-
+  def quienesPasan(competidores: List[Vikingo]): List[Vikingo] = competidores.take(competidores.length / 2)
+  def decisionGanador(competidores: List[Vikingo]): Vikingo = competidores.head
 }
 
-object ReglasDeTorneoEstandar extends ReglasDeTorneo {
+object Estandar extends ReglasDeTorneoEstandar
 
-  def quienesPasan(competidores: List[Vikingo]): List[Vikingo] = ???
-
+class Eliminacion(N: Int) extends ReglasDeTorneoEstandar {
+  override def quienesPasan(competidores: List[Vikingo]): List[Vikingo] = competidores.dropRight(N)
 }
 
-//object asd extends ReglasDeTorneoEstandar {
-//
-//}
+object TorneoInverso extends ReglasDeTorneoEstandar {
+  override def quienesPasan(competidores: List[Vikingo]): List[Vikingo] = competidores.drop(competidores.length / 2)
+  override def decisionGanador(competidores: List[Vikingo]): Vikingo = competidores.last
+}
 
-//object ReglasDeTorneoPorEquipos extends ReglasDeTorneo {
+class ConVetoDeDragones(condicion: Dragon => Boolean) extends ReglasDeTorneoEstandar {
+  override def preparacion(vikingosRestantes: List[Vikingo], conjuntoDeDragones: Set[Dragon], postaActual: Posta): List[Competidor] =
+    super.preparacion(vikingosRestantes, conjuntoDeDragones.filter(condicion), postaActual)
+}
+
+object ConHandicap extends ReglasDeTorneoEstandar {
+  override def preparacion(vikingosRestantes: List[Vikingo], conjuntoDeDragones: Set[Dragon], postaActual: Posta): List[Competidor] =
+    super.preparacion(vikingosRestantes.reverse, conjuntoDeDragones, postaActual)
+}
+
+//object PorEquipos extends ReglasDeTorneo {
 //
 //}

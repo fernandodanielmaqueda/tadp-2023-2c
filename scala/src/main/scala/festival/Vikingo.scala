@@ -2,7 +2,7 @@ package festival
 
 import scala.util.{Try, Success, Failure}
 
-case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nivelDeHambre: Hambre, item: Item) extends Competidor {
+case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nivelDeHambre: Hambre, item: Item) extends Competidor with Participante {
   require(peso > 0, "El peso debe ser positivo")
   require(velocidad > 0, "La velocidad debe ser positiva")
   require(barbarosidad >= 0, "La barbarosidad no puede ser negativa")
@@ -26,6 +26,8 @@ case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nive
   def tieneUnArmaEquipada: Boolean = item.isInstanceOf[Arma]
   def tieneMontura: Boolean = false
 
+  def tieneItem(unItemEnParticular: Item): Boolean = unItemEnParticular == item
+
   def montar(unDragon: Dragon): Jinete = {
     if (!unDragon.loPuedeMontar(this)) throw new NoSePudoMontarDragonException("El vikingo no pudo montar al dragón")
     Jinete(this, unDragon)
@@ -39,7 +41,5 @@ case class Vikingo (peso: kg, velocidad: km_h, barbarosidad: Barbarosidad, _nive
       ).appended(this).filter(_.puedeParticiparEn(unaPosta))
     ).headOption
   }
-
-  def tieneItem(unItemEnParticular: Item): Boolean = unItemEnParticular == item
 
 }

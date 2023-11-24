@@ -15,12 +15,17 @@ trait Competidor {
   def incrementarNivelDeHambre(incremento: Hambre): Competidor
   def decrementarNivelDeHambre(decremento: Hambre): Competidor
 
-  def cuantaHambreDeberiaIncrementarPorParticiparEn(unaPosta: Posta): Hambre = unaPosta.incremento
-  def nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta: Posta): Hambre = nivelDeHambreAlQueIncrementariaCon(cuantaHambreDeberiaIncrementarPorParticiparEn(unaPosta))
-  def darHambrePorParticiparEn(unaPosta: Posta): Competidor = this.incrementarNivelDeHambre(nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta))
+  def cuantaHambreDeberiaIncrementarPorParticiparEn(unaPosta: Posta): Hambre =
+    unaPosta.incremento
+  def nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta: Posta): Hambre =
+    nivelDeHambreAlQueIncrementariaCon(cuantaHambreDeberiaIncrementarPorParticiparEn(unaPosta))
+  def darHambrePorParticiparEn(unaPosta: Posta): Competidor =
+    this.incrementarNivelDeHambre(nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta))
 
-  def cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta: Posta): Boolean = nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta) < 100
-  def puedeParticiparEn(unaPosta: Posta): Boolean = cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta) && unaPosta.admiteA(this)
+  def cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta: Posta): Boolean =
+    nivelDeHambreQueAlcanzariaTrasParticiparEn(unaPosta) < 100
+  def puedeParticiparEn(unaPosta: Posta): Boolean =
+    cumplePrerequisitosPropiosComoParaParticiparEn(unaPosta) && unaPosta.admiteA(this)
   def participarEn(unaPosta: Posta): Competidor = {
     if (!puedeParticiparEn(unaPosta)) throw new CompetidorNoPudoParticiparEnPostaException("El competidor no pudo participar en la posta")
     item.aplicarSobrePortador(this.darHambrePorParticiparEn(unaPosta))
@@ -32,6 +37,7 @@ trait Competidor {
   def tieneUnArmaEquipada: Boolean
   def tieneMontura: Boolean
 
-  def esMejorQue(otroCompetidor: Competidor)(unaPosta: Posta): Boolean = unaPosta.elPrimeroEsMejorQueElSegundo(this, otroCompetidor)
+  def esMejorQue(otroCompetidor: Competidor)(unaPosta: Posta): Boolean =
+    unaPosta.elPrimeroEsMejorQueElSegundo(this, otroCompetidor)
 
 }
