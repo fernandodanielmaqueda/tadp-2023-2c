@@ -66,7 +66,8 @@ object TorneoPorEquipos extends ReglasDeTorneo[Equipo] {
     equipo <- equiposActuales.map(_.conjuntoDeVikingos & vikingosRestantes.toSet) if equipo.nonEmpty
   } yield Equipo(equipo)
 
-  def decisionGanador(restantes: List[Equipo]): Equipo =
+  def decisionGanador(restantes: List[Equipo]): Equipo = {
     restantes.maxBy(_.conjuntoDeVikingos.size)
+  }
 
 }

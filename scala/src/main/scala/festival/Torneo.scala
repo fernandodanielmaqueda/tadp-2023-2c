@@ -19,7 +19,7 @@ class Torneo[A <: Participante](serieDePostas: List[Posta], conjuntoDeDragones: 
   def inscribirA(grupoDeCompetidores: List[A]): Either[String, A] = { // anotarA
     require(grupoDeCompetidores.nonEmpty, "El grupoDeCompetidores no puede ser vacio")
 
-    this.serieDePostas.foldLeft(grupoDeCompetidores)((competidoresActuales, postaActual) =>
+    this.postasQueSeVanAJugar(serieDePostas).foldLeft(grupoDeCompetidores)((competidoresActuales, postaActual) =>
       competidoresActuales match {
         case Nil => List()
         case competidorGanador :: Nil => List(competidorGanador)
@@ -33,6 +33,14 @@ class Torneo[A <: Participante](serieDePostas: List[Posta], conjuntoDeDragones: 
       case competidorGanador :: Nil => Right(competidorGanador)
       case competidoresRestantes => Right(reglasDelTorneo.decisionGanador(competidoresRestantes))
     }
+  }
+
+  private def hayNuevaLluvia: Boolean = scala.math.random < 0.2
+
+  private def postasQueSeVanAJugar(serieDePostas: List[Posta]): List[Posta] = serieDePostas match {
+    case Nil => Nil
+    case postasRestantes if this.hayNuevaLluvia => this.postasQueSeVanAJugar(postasRestantes.drop(3))
+    case cabeza :: cola => cabeza :: this.postasQueSeVanAJugar(cola)
   }
 
 }
