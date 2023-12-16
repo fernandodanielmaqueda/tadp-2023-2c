@@ -16,7 +16,7 @@ class Torneo[A <: Participante](serieDePostas: List[Posta], conjuntoDeDragones: 
 
   }
 
-  def inscribirA(grupoDeCompetidores: List[A]): Either[String, A] = { // anotarA
+  def inscribirA(grupoDeCompetidores: List[A]): Either[String, List[A]] = { // anotarA
     require(grupoDeCompetidores.nonEmpty, "El grupoDeCompetidores no puede ser vacio")
 
     this.postasQueSeVanAJugar(serieDePostas).foldLeft(grupoDeCompetidores)((competidoresActuales, postaActual) =>
@@ -30,7 +30,7 @@ class Torneo[A <: Participante](serieDePostas: List[Posta], conjuntoDeDragones: 
       }
     ) match {
       case Nil => Left("No hubo ningun ganador")
-      case competidorGanador :: Nil => Right(competidorGanador)
+      case competidorGanador :: Nil => Right(List(competidorGanador))
       case competidoresRestantes => Right(reglasDelTorneo.decisionGanador(competidoresRestantes))
     }
   }

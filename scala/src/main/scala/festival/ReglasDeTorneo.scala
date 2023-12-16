@@ -18,11 +18,17 @@ trait ReglasDeTorneo[A <: Participante] {
     }
   }
 
-  def quienesPasan(resultantes: List[Vikingo]): List[Vikingo] = // quienesContinuan / quienesAvanzan
+  // quienesContinuan / quienesAvanzan
+  def quienesPasan(resultantes: List[Vikingo]): List[Vikingo] =
     resultantes.take(resultantes.length / 2)
 
-  def decisionGanador(competidores: List[A]): A // enCasoDeTerminarElTorneoConVariosParticipantes
+  // enCasoDeTerminarElTorneoConVariosParticipantes
+  def decisionGanador(competidores: List[A]): List[A]
 
+}
+
+trait ReglasDeTorneoConEmpate[A <: Participante] extends ReglasDeTorneo[A] {
+  override def decisionGanador(competidores: List[A]): List[A] = competidores
 }
 
 trait ReglasDeTorneoEstandar extends ReglasDeTorneo[Vikingo] {
@@ -31,33 +37,64 @@ trait ReglasDeTorneoEstandar extends ReglasDeTorneo[Vikingo] {
 
   def reagruparA(vikingosRestantes: List[Vikingo], vikingosActuales: List[Vikingo]): List[Vikingo] = vikingosRestantes
 
-  def decisionGanador(restantes: List[Vikingo]): Vikingo = restantes.head
+  def decisionGanador(restantes: List[Vikingo]): List[Vikingo] = List(restantes.head)
 
 }
 
-object TorneoEstandar extends ReglasDeTorneoEstandar
+object TorneoEstandarNoEmpatable extends ReglasDeTorneoEstandar
 
-class TorneoEliminacion(N: Int) extends ReglasDeTorneoEstandar {
+object TorneoEstandarEmpatable extends ReglasDeTorneoEstandar with ReglasDeTorneoConEmpate[Vikingo]
+
+trait TorneoEliminacion extends ReglasDeTorneoEstandar {
+
+  def N: Int
+
   override def quienesPasan(competidores: List[Vikingo]): List[Vikingo] = competidores.dropRight(N)
+
 }
 
-object TorneoInverso extends ReglasDeTorneoEstandar {
+class TorneoEliminacionNoEmpatable(val N: Int) extends TorneoEliminacion
+
+class TorneoEliminacionEmpatable(val N: Int) extends TorneoEliminacion with ReglasDeTorneoConEmpate[Vikingo]
+
+trait TorneoInverso extends ReglasDeTorneoEstandar {
+
   override def quienesPasan(resultantes: List[Vikingo]): List[Vikingo] = resultantes.drop(resultantes.length / 2)
 
-  override def decisionGanador(restantes: List[Vikingo]): Vikingo = restantes.last
+  override def decisionGanador(restantes: List[Vikingo]): List[Vikingo] = List(restantes.last)
+
 }
 
-class TorneoConVetoDeDragones(condicion: Dragon => Boolean) extends ReglasDeTorneoEstandar {
+object TorneoInversoNoEmpatable extends TorneoInverso
+
+object TorneoInversoEmpatable extends TorneoInverso with ReglasDeTorneoConEmpate[Vikingo]
+
+
+
+
+trait TorneoConVetoDeDragones extends ReglasDeTorneoEstandar {
+
+  def condicion: Dragon => Boolean
+
   override def preparacion(vikingosRestantes: List[Vikingo], conjuntoDeDragones: Set[Dragon], postaActual: Posta): List[Competidor] =
     super.preparacion(vikingosRestantes, conjuntoDeDragones.filter(condicion), postaActual)
+
 }
 
-object TorneoConHandicap extends ReglasDeTorneoEstandar {
+class TorneoConVetoDeDragonesNoEmpatable(val condicion: Dragon => Boolean) extends TorneoConVetoDeDragones
+
+class TorneoConVetoDeDragonesEmpatable(val condicion: Dragon => Boolean) extends TorneoConVetoDeDragones with ReglasDeTorneoConEmpate[Vikingo]
+
+trait TorneoConHandicap extends ReglasDeTorneoEstandar {
   override def preparacion(vikingosRestantes: List[Vikingo], conjuntoDeDragones: Set[Dragon], postaActual: Posta): List[Competidor] =
     super.preparacion(vikingosRestantes.reverse, conjuntoDeDragones, postaActual)
 }
 
-object TorneoPorEquipos extends ReglasDeTorneo[Equipo] {
+object TorneoConHandicapNoEmpatable extends TorneoConHandicap
+
+object TorneoConHandicapEmpatable extends TorneoConHandicap with ReglasDeTorneoConEmpate[Vikingo]
+
+trait TorneoPorEquipos extends ReglasDeTorneo[Equipo] {
 
   def comoAlistarA(equiposRestantes: List[Equipo]): List[Vikingo] =
     equiposRestantes.map(_.conjuntoDeVikingos.toList).transpose.flatten
@@ -66,8 +103,11 @@ object TorneoPorEquipos extends ReglasDeTorneo[Equipo] {
     equipo <- equiposActuales.map(_.conjuntoDeVikingos & vikingosRestantes.toSet) if equipo.nonEmpty
   } yield Equipo(equipo)
 
-  def decisionGanador(restantes: List[Equipo]): Equipo = {
-    restantes.maxBy(_.conjuntoDeVikingos.size)
-  }
+  def decisionGanador(restantes: List[Equipo]): List[Equipo] =
+    List(restantes.maxBy(_.conjuntoDeVikingos.size))
 
 }
+
+object TorneoPorEquiposEmpatable extends TorneoPorEquipos
+
+object TorneoPorEquiposNoEmpatable extends TorneoPorEquipos with ReglasDeTorneoConEmpate[Equipo]
